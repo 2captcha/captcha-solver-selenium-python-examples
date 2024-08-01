@@ -1,4 +1,4 @@
-# Code examples of solving captchas in python using selenium
+# Code examples of solving captchas in Python using Selenium
 
 Examples of solving captchas using the Python programming language, and the [2captcha-python] and [Selenium] libraries.
 
