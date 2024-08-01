@@ -6,7 +6,7 @@ This repository contains examples of automation of solving the most popular type
  Also, for `proxy` examples to work correctly, you need to have your own `proxy` and set it in the example code. The examples of captcha automation solving use captchas located on the [captchas demo pages](https://2captcha.com/demo).
 
 We have our own proxies that we can offer you. [Buy residential proxies] to avoid restrictions and blocks. [Quick start].
-Offical 2Captcha page for [selenium captcha solver](https://2captcha.com/p/selenium-captcha-solver).
+Official 2Captcha webpage for [selenium captcha solver](https://2captcha.com/p/selenium-captcha-solver).
 
 - [Code examples of solving captchas in python using selenium](#code-examples-of-solving-captchas-in-python-using-selenium)
   - [Usage](#usage)
