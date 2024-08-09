@@ -29,6 +29,8 @@ Official 2Captcha webpage for [selenium captcha solver](https://2captcha.com/p/s
       - [Normal captcha (canvas)](#normal-captcha-canvas)
   - [General algorithm for solving captchas using 2captcha service](#general-algorithm-for-solving-captchas-using-2captcha-service)
   - [Get in touch](#get-in-touch)
+  - [License](#license)
+    - [Graphics and Trademarks](#graphics-and-trademarks)
 
 ## Usage
 
@@ -248,6 +250,14 @@ The process of bypassing captcha with the help of 2captcha service can be divide
 
 <a href="mailto:support@2captcha.com"><img src="https://github.com/user-attachments/assets/539df209-7c85-4fa5-84b4-fc22ab93fac7" width="80" height="30"></a>
 <a href="https://2captcha.com/support/tickets/new"><img src="https://github.com/user-attachments/assets/be044db5-2e67-46c6-8c81-04b78bd99650" width="81" height="30"></a>
+
+## License
+
+The code in this repository is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.
+
+### Graphics and Trademarks
+
+The graphics and trademarks included in this repository are not covered by the MIT License. Please contact <a href="mailto:support@2captcha.com">support</a> for permissions regarding the use of these materials.
 
 <!-- Shared links -->
 [2captcha-demo]: https://2captcha.com/demo
