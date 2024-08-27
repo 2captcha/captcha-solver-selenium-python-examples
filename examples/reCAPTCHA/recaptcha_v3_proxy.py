@@ -48,7 +48,7 @@ return findRecaptchaData();
 # LOCATORS
 
 submit_button_captcha_locator = "//button[@type='submit']"
-success_message_locator = "//p[@class='_successMessage_mbkq7_1']"
+success_message_locator = "//p[contains(@class,'successMessage')]"
 
 
 # GETTERS

@@ -61,7 +61,7 @@ return findRecaptchaClients()
 
 # LOCATORS
 
-success_message_locator = "//p[@class='_successMessage_1ndnh_1']"
+success_message_locator = "//p[contains(@class,'successMessage')]"
 
 
 # GETTERS

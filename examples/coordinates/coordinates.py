@@ -18,7 +18,7 @@ apikey = os.getenv('APIKEY_2CAPTCHA')
 img_locator_captcha_for_get = "._widgetForm_1f3oo_26 img"
 img_locator_captcha_for_click = "//div[@class='_widget_s7q0j_5']//img"
 submit_button_captcha_locator = "//button[@type='submit']"
-success_message_locator = "//p[@class='_successMessage_s7q0j_1']"
+success_message_locator = "//p[contains(@class,'successMessage')]"
 
 
 # GETTERS

@@ -23,7 +23,7 @@ proxy = {'type': 'HTTP',
 
 iframe_locator = "//div[@class='h-captcha']//iframe"
 submit_button_captcha_locator = "//button[@type='submit']"
-success_message_locator = "//p[@class='_successMessage_1ndnh_1']"
+success_message_locator = "//p[contains(@class,'successMessage')]"
 
 
 # GETTERS

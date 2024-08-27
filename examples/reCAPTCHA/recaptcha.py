@@ -16,7 +16,7 @@ apikey = os.getenv('APIKEY_2CAPTCHA')
 
 sitekey_locator = "//div[@id='g-recaptcha']"
 submit_button_captcha_locator = "//button[@data-action='demo_action']"
-success_message_locator = "//p[@class='_successMessage_1ndnh_1']"
+success_message_locator = "//p[contains(@class,'successMessage')]"
 
 
 # GETTERS

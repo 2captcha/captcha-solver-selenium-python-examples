@@ -17,7 +17,7 @@ apikey = os.getenv('APIKEY_2CAPTCHA')
 img_locator = "//img[@class='_captchaImage_rrn3u_9']"
 input_captcha_locator = "//input[@id='simple-captcha-field']"
 submit_button_captcha_locator = "//button[@type='submit']"
-success_message_locator = "//p[@class='_successMessage_rrn3u_1']"
+success_message_locator = "//p[contains(@class,'successMessage')]"
 
 
 # GETTERS
