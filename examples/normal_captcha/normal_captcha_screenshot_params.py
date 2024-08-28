@@ -12,6 +12,16 @@ url = "https://2captcha.com/demo/normal"
 apikey = os.getenv('APIKEY_2CAPTCHA')
 
 
+# ADVANCED CAPTCHA OPTIONS
+
+extra_options = {
+    "numeric": 4,
+    "minLen": 4,
+    "maxLen": 10,
+    "lang": "en"
+}
+
+
 # LOCATORS
 
 img_locator = "//img[@class='_captchaImage_rrn3u_9']"
@@ -29,7 +39,7 @@ def get_element(locator):
 
 # ACTIONS
 
-def solver_captcha(image, apikey):
+def solver_captcha(image, apikey, **extra_options):
     """
     Solves a captcha using the 2Captcha service and returns the solution code
 
@@ -41,7 +51,7 @@ def solver_captcha(image, apikey):
     """
     solver = TwoCaptcha(apikey)
     try:
-        result = solver.normal(image)
+        result = solver.normal(image, **extra_options)
         print(f"Captcha solved. Code: {result['code']}")
         return result['code']
     except Exception as e:
@@ -105,7 +115,7 @@ with webdriver.Chrome() as browser:
     image_base64 = get_image_base64(img_locator)
 
     # Solving captcha using 2Captcha
-    code = solver_captcha(image_base64, apikey)
+    code = solver_captcha(image_base64, apikey, **extra_options)
 
     if code:
         # Entering captcha code

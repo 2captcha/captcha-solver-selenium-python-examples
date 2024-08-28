@@ -20,6 +20,9 @@ Official 2Captcha webpage for [selenium captcha solver](https://2captcha.com/p/s
       - [reCAPTCHA V2 + proxy](#recaptcha-v2--proxy)
       - [reCAPTCHA V2 with callback](#recaptcha-v2-with-callback)
       - [reCAPTCHA V2 with callback + proxy](#recaptcha-v2-with-callback--proxy)
+      - [reCAPTCHA V3](#recaptcha-v3)
+      - [reCAPTCHA V3 (extended script)](#recaptcha-v3-extended-script)
+      - [reCAPTCHA V3 + proxy](#recaptcha-v3--proxy)
     - [hCaptcha examples](#hcaptcha-examples)
       - [hCaptcha](#hcaptcha)
       - [hCaptcha + proxy](#hcaptcha--proxy)
@@ -27,6 +30,8 @@ Official 2Captcha webpage for [selenium captcha solver](https://2captcha.com/p/s
     - [Normal captcha examples](#normal-captcha-examples)
       - [Normal captcha (screenshot)](#normal-captcha-screenshot)
       - [Normal captcha (canvas)](#normal-captcha-canvas)
+      - [Normal captcha (canvas + additional-parameters)](#normal-captcha-canvas--additional-parameters)
+    - [Coordinates example](#coordinates-example)
   - [General algorithm for solving captchas using 2captcha service](#general-algorithm-for-solving-captchas-using-2captcha-service)
   - [Get in touch](#get-in-touch)
   - [License](#license)
@@ -101,9 +106,7 @@ Token based reCAPTCHA V2 solution.
 
 This example implements bypassing reCAPTCHA V2 captcha located on the page https://2captcha.com/demo/recaptcha-v2. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
 
-For the example to work correctly, you need to set the value of the `proxy` used in the example code.
-
-**Source code:** [`./examples/reCAPTCAHA/recaptcha.py`](./examples/reCAPTCHA/recaptcha.py)
+**Source code:** [`./examples/reCAPTCAHA/recaptcha_v2.py`](./examples/reCAPTCHA/recaptcha_v2.py)
 
 #### reCAPTCHA V2 + `proxy`
 
@@ -113,7 +116,9 @@ This example implements bypassing reCAPTCHA V2 captcha located on the page https
 
 From time to time when bypassing captchas there is a need to use proxies, in such cases it is important to use the same proxies both when loading the page and when solving the captcha itself. To do this, you need to pass the parameters of the `proxy` used with the parameters of the captcha, so that the captcha would be loaded and solved from the same ip address.
 
-**Source code:** [`./examples/reCAPTCAHA/recaptcha_proxy.py`](./examples/reCAPTCHA/recaptcha_proxy.py)
+For the example to work correctly, you need to set the value of the `proxy` used in the example code.
+
+**Source code:** [`./examples/reCAPTCAHA/recaptcha_v2_proxy.py`](./examples/reCAPTCHA/recaptcha_v2_proxy.py)
 
 #### reCAPTCHA V2 with callback
 
@@ -125,27 +130,53 @@ Sometimes there's no submit button and a callback function is used isntead. The 
 
 In this repository you can find three example implementations of the reCAPTCHA V2 with callback solution:
 
-1. [recaptcha_callback_variant1.py](./examples/reCAPTCHA/recaptcha_callback_variant1.py) - The value of the `sitekey` parameter is extracted from the page code automaticly. The value of the `callback` function “`verifyDemoRecaptcha()`” is specified manually. The name of the “`verifyDemoRecaptcha()`” function may be different when bypassing captcha on another page. You need to fugure out the name of the `callback` function yourself and specify it in the code.
+1. [recaptcha_v2_callback_variant1.py](./examples/reCAPTCHA/recaptcha_v2_callback_variant1.py) - The value of the `sitekey` parameter is extracted from the page code automaticly. The value of the `callback` function “`verifyDemoRecaptcha()`” is specified manually. The name of the “`verifyDemoRecaptcha()`” function may be different when bypassing captcha on another page. You need to fugure out the name of the `callback` function yourself and specify it in the code.
 
-  **Source code:** [`./examples/reCAPTCAHA/recaptcha_callback_variant1.py`](./examples/reCAPTCHA/recaptcha_callback_variant1.py)
+    **Source code:** [`./examples/reCAPTCAHA/recaptcha_v2_callback_variant1.py`](./examples/reCAPTCHA/recaptcha_v2_callback_variant1.py)
 
-2. [recaptcha_callback_variant2.py](./examples/reCAPTCHA/recaptcha_callback_variant2.py) - Captcha parameters are determined automatically with the help of JavaScript script executed on the page.
+2. [recaptcha_v2_callback_variant2.py](./examples/reCAPTCHA/recaptcha_v2_callback_variant2.py) - Captcha parameters are determined automatically with the help of JavaScript script executed on the page.
 
-  **Source code:** [`./examples/reCAPTCAHA/recaptcha_callback_variant2.py`](./examples/reCAPTCHA/recaptcha_callback_variant2.py)
+    **Source code:** [`./examples/reCAPTCAHA/recaptcha_v2_callback_variant2.py`](./examples/reCAPTCHA/recaptcha_v2_callback_variant2.py)
   
-3. [recaptcha_callback_proxy.py](./examples/reCAPTCHA/recaptcha_callback_proxy.py) - [This example describe below](#recaptcha-v2-with-callback--proxy).
+3. [recaptcha_v2_callback_proxy.py](./examples/reCAPTCHA/recaptcha_v2_callback_proxy.py) - [This example describe below](#recaptcha-v2-with-callback--proxy).
 
-  **Source code:** [`./examples/reCAPTCAHA/recaptcha_callback_proxy.py`](./examples/reCAPTCHA/recaptcha_callback_proxy.py)
+    **Source code:** [`./examples/reCAPTCAHA/recaptcha_v2_callback_proxy.py`](./examples/reCAPTCHA/recaptcha_v2_callback_proxy.py)
 
 #### reCAPTCHA V2 with callback + proxy
 
 Token based reCAPTCHA V2 with callback solutions using proxy.
 
-In these examples implements bypassing reCAPTCHA V2 with callback located on the page https://2captcha.com/demo/recaptcha-v2-callback using proxy. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
+In these example implements bypassing reCAPTCHA V2 with callback located on the page https://2captcha.com/demo/recaptcha-v2-callback using proxy. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
 
 For the example to work correctly, you need to set the value of the `proxy` used in the example code.
 
-**Source code:** [`./examples/reCAPTCAHA/recaptcha_callback_proxy.py`](./examples/reCAPTCHA/recaptcha_callback_proxy.py)
+**Source code:** [`./examples/reCAPTCAHA/recaptcha_v2_callback_proxy.py`](./examples/reCAPTCHA/recaptcha_v2_callback_proxy.py)
+
+#### reCAPTCHA v3
+
+Token based reCAPTCHA V3 solution.
+
+This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https://2captcha.com/demo/recaptcha-v3. The Selenium library automates browser interactions. Captcha parameters are determined automatically with the help of JavaScript script executed on the page. Upon obtaining the solution (token), the script programmatically applies the response to the captcha page.
+
+**Source code:** [`./examples/reCAPTCAHA/recaptcha_v3.py`](./examples/reCAPTCHA/recaptcha_v3.py)
+
+#### reCAPTCHA v3 (extended script)
+
+Token based reCAPTCHA V3 solution.
+
+This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https://2captcha.com/demo/recaptcha-v3. The Selenium library automates browser interactions. Captcha parameters are determined automatically with the help of JavaScript extended script executed on the page. Upon obtaining the solution (token), the script programmatically applies the response to the captcha page.
+
+**Source code:** [`./examples/reCAPTCAHA/recaptcha_v3_extended_js_script.py`](./examples/reCAPTCHA/recaptcha_v3_extended_js_script.py)
+
+#### reCAPTCHA v3 + proxy
+
+Token based reCAPTCHA V3 solution using proxy.
+
+This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https://2captcha.com/demo/recaptcha-v3. The Selenium library automates browser interactions. Captcha parameters are determined automatically with the help of JavaScript script on the page. Upon obtaining the solution (token), the script programmatically applies the response to the captcha page. A proxy is use during the captcha-solving process.
+
+For the example to work correctly, you need to set the value of the `proxy` used in the example code.
+
+**Source code:** [`./examples/reCAPTCAHA/recaptcha_v3_proxy.py`](./examples/reCAPTCHA/recaptcha_v3_proxy.py)
 
 ### hCaptcha examples
 
@@ -157,7 +188,7 @@ In addition to the token, the captcha answer also constain a `userAgent` value, 
 
 Token based hCaptcha solutions.
 
-In these examples implements bypassing hCaptcha located on the page https://2captcha.com/demo/hcaptcha. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
+In these example implements bypassing hCaptcha located on the page https://2captcha.com/demo/hcaptcha. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
 
 For the example to work correctly, you need to set the value of the `proxy` used in the example code.
 
@@ -167,7 +198,7 @@ For the example to work correctly, you need to set the value of the `proxy` used
 
 Token based hCaptcha solutions using `proxy`.
 
-In these examples implements bypassing hCaptcha located on the page https://2captcha.com/demo/hcaptcha using `proxy`. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
+In these example implements bypassing hCaptcha located on the page https://2captcha.com/demo/hcaptcha using `proxy`. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
 
 **Source code:** [`./examples/hCaptcha/hcaptcha_proxy.py`](./examples/hCaptcha/hcaptcha_proxy.py)
 
@@ -175,7 +206,7 @@ In these examples implements bypassing hCaptcha located on the page https://2cap
 
 Text captcha solutions.
 
-In these examples implements bypassing Text captcha located on the page https://2captcha.com/demo/text. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
+In these example implements bypassing Text captcha located on the page https://2captcha.com/demo/text. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
 
 **Source code:** [`./examples/text_captcha/text_captcha.py`](./examples/text_captcha/text_captcha.py)
 
@@ -187,7 +218,7 @@ Normal captcha is also one of the most popular types of captcha. Below are two e
 
 Normal captcha solutions.
 
-In these examples implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is retrieved by creating a screenshot of the captcha image.
+In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is retrieved by creating a screenshot of the captcha image.
 
 **Source code:** [`./examples/normal_captcha/normal_captcha_screenshot.py`](./examples/normal_captcha/normal_captcha_screenshot.py)
 
@@ -195,9 +226,23 @@ In these examples implements bypassing Normal captcha located on the page https:
 
 Normal captcha solutions.
 
-In these examples implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is extracted using `canvas`.
+In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is extracted using `canvas`.
 
 **Source code:** [`./examples/normal_captcha/normal_captcha_canvas.py`](./examples/normal_captcha/normal_captcha_canvas.py)
+
+#### Normal captcha (canvas + additional parameters)
+
+Normal captcha solutions using additional parameters.
+
+In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. The captcha is sent using additional parameters such as `numeric`, `minLen`, `maxLen`, `lang`. Sending additional parameters allows you to increase the accuracy of the captcha solution. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is extracted using `canvas`.
+
+**Source code:** [`./examples/normal_captcha/normal_captcha_screenshot_params.py`](./examples/normal_captcha/normal_captcha_screenshot_params.py)
+
+### Coordinates example
+
+A coordinate captcha is a captcha in which you need to click on the image  in corresponding to the instructions for the image.This example implements a bypass of the coordinate captcha located on the page https://2captcha.com/demo/clickcaptcha.  The Selenium library is used to automate browser actions. After receiving the result of the solution, the script automatically clicks on the received coordinates on the captcha image.
+
+**Source code:** [`./examples/coordinates/coordinates.py`](./examples/coordinates/coordinates.py)
 
 ## General algorithm for solving captchas using [2captcha] service
 

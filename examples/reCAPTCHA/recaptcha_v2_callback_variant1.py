@@ -5,18 +5,22 @@ from selenium.webdriver.support import expected_conditions as EC
 import os
 from twocaptcha import TwoCaptcha
 
+# Description: 
+# The value of the `sitekey` parameter is extracted from the page code automaticly. 
+# The value of the callback function “verifyDemoRecaptcha()” is specified manually.
+# The name of the “verifyDemoRecaptcha()” function may be different when bypassing captcha on another page.
+# You need to fugure out the name of the callback function yourself and specify it in the code.
 
 # CONFIGURATION
 
-url = "https://2captcha.com/demo/recaptcha-v2"
+url = "https://2captcha.com/demo/recaptcha-v2-callback"
 apikey = os.getenv('APIKEY_2CAPTCHA')
 
 
 # LOCATORS
 
 sitekey_locator = "//div[@id='g-recaptcha']"
-submit_button_captcha_locator = "//button[@data-action='demo_action']"
-success_message_locator = "//p[@class='_successMessage_1ndnh_1']"
+success_message_locator = "//p[contains(@class,'successMessage')]"
 
 
 # GETTERS
@@ -62,28 +66,12 @@ def solver_captcha(apikey, sitekey, url):
         print(f"An error occurred: {e}")
         return None
 
-def send_token(captcha_token):
-    """
-    Sends the captcha token to the reCaptcha response field.
-
-    Args:
-        captcha_token (str): The solved captcha token.
-        """
-    script = f"""
-        document.querySelector('[id="g-recaptcha-response"]').innerText = '{captcha_token}';
-    """
+def send_token(token):
+    # verifyDemoRecaptcha() it is JavaScript callback function on page with captcha.
+    # callback function executing for apply token.
+    script = f"verifyDemoRecaptcha('{token}');"
     browser.execute_script(script)
-    print("Token sent")
-
-def click_check_button(locator):
-    """
-    Clicks the captcha check button.
-
-    Args:
-        locator (str): The XPath locator of the check button.
-    """
-    get_element(locator).click()
-    print("Pressed the Check button")
+    print("The token is sent to the callback function")
 
 def final_message(locator):
     """
@@ -94,6 +82,7 @@ def final_message(locator):
     """
     message = get_element(locator).text
     print(message)
+
 
 # MAIN LOGIC
 
@@ -111,9 +100,6 @@ with webdriver.Chrome() as browser:
     if token:
         # Sending solved captcha token
         send_token(token)
-
-        # Pressing the Check button
-        click_check_button(submit_button_captcha_locator)
 
         # Receiving and displaying a success message
         final_message(success_message_locator)
