@@ -26,6 +26,7 @@ We have our own proxies that we can offer you. [Buy residential proxies] to avoi
     - [Normal captcha examples](#normal-captcha-examples)
       - [Normal captcha (screenshot)](#normal-captcha-screenshot)
       - [Normal captcha (canvas)](#normal-captcha-canvas)
+    - [MTCaptcha example](#mtcaptcha)
   - [General algorithm for solving captchas using 2captcha service](#general-algorithm-for-solving-captchas-using-2captcha-service)
   - [Get in touch](#get-in-touch)
 
@@ -195,6 +196,14 @@ Normal captcha solutions.
 In these examples implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is extracted using `canvas`.
 
 **Source code:** [`./examples/normal_captcha/normal_captcha_canvas.py`](./examples/normal_captcha/normal_captcha_canvas.py)
+
+### MTCaptcha
+
+Token based MTCaptcha solutions.
+
+In these example, we demonstrate bypassing MTCaptcha located on the page https://2captcha.com/demo/mtcaptcha. The Selenium library is utilized to automate browser actions. Upon receiving the solution result (token), the script automatically applies the obtained answer on the page containing the captcha.
+
+**Source code:** [`./examples/mtcaptcha/mtcaptcha.py`](./examples/mtcaptcha/mtcaptcha.py)
 
 ## General algorithm for solving captchas using [2captcha] service
 
