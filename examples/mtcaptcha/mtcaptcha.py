@@ -38,7 +38,7 @@ def get_sitekey():
     """
     time.sleep(3)  # Adding a delay to ensure the sitekey is loaded
     sitekey = browser.execute_script("""
-        return window.mtcaptchaConfig?.sitekey || window.mtcaptcha?.getConfiguration()?.sitekey;
+        return window.mtcaptchaConfig.sitekey || window.mtcaptcha.getConfiguration().sitekey;
         """)
 
     print("Sitekey received")
