@@ -32,6 +32,7 @@ Official 2Captcha webpage for [selenium captcha solver](https://2captcha.com/p/s
       - [Normal captcha (canvas)](#normal-captcha-canvas)
       - [Normal captcha (canvas + additional-parameters)](#normal-captcha-canvas--additional-parameters)
     - [Coordinates example](#coordinates-example)
+    - [MTCaptcha example](#mtcaptcha)
   - [General algorithm for solving captchas using 2captcha service](#general-algorithm-for-solving-captchas-using-2captcha-service)
   - [Get in touch](#get-in-touch)
   - [License](#license)
@@ -243,6 +244,14 @@ In these example implements bypassing Normal captcha located on the page https:/
 A coordinate captcha is a captcha in which you need to click on the image  in corresponding to the instructions for the image.This example implements a bypass of the coordinate captcha located on the page https://2captcha.com/demo/clickcaptcha.  The Selenium library is used to automate browser actions. After receiving the result of the solution, the script automatically clicks on the received coordinates on the captcha image.
 
 **Source code:** [`./examples/coordinates/coordinates.py`](./examples/coordinates/coordinates.py)
+
+### MTCaptcha
+
+Token based MTCaptcha solutions.
+
+In these example, we demonstrate bypassing MTCaptcha located on the page https://2captcha.com/demo/mtcaptcha. The Selenium library is utilized to automate browser actions. Upon receiving the solution result (token), the script automatically applies the obtained answer on the page containing the captcha.
+
+**Source code:** [`./examples/mtcaptcha/mtcaptcha.py`](./examples/mtcaptcha/mtcaptcha.py)
 
 ## General algorithm for solving captchas using [2captcha] service
 
