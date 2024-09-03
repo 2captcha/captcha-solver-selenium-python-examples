@@ -5,6 +5,9 @@ from selenium.webdriver.support import expected_conditions as EC
 import os
 from twocaptcha import TwoCaptcha
 
+# Description: 
+# In this example, you will learn how to bypass the Cloudflare Turnstile CAPTCHA located on the page https://2captcha.com/demo/cloudflare-turnstile. This demonstration will guide you through the steps of interacting with and overcoming the CAPTCHA using specific techniques
+# The value of the `sitekey` parameter is extracted from the page code automaticly. 
 
 # CONFIGURATION
 
