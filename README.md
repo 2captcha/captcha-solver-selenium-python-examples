@@ -2,7 +2,7 @@
 
 Examples of solving captchas using the Python programming language, and the [2captcha-python] and [Selenium] libraries.
 
-This repository contains examples of automation of solving the most popular types of captcha, such as [reCAPTCHA][recaptcha-v2-demo], [normal captcha][normal-captcha-demo], [hCaptcha][hcaptcha-demo] and others. Selenium library is used for browser automation in the examples. The [2Captcha] service is used for solving captchas, therefore, for the correct work of the examples it is necessary to have an account in the [captcha solving service][2Captcha] service with a positive balance, or you can try to test it using [sandbox] mode to solve captchas manually.
+This repository contains examples of automation of solving the most popular types of captcha, such as [reCAPTCHA][recaptcha-v2-demo], [Cloudflare Turnstile][cloudflare-turnstile], [normal captcha][normal-captcha-demo], [hCaptcha][hcaptcha-demo] and others. Selenium library is used for browser automation in the examples. The [2Captcha] service is used for solving captchas, therefore, for the correct work of the examples it is necessary to have an account in the [captcha solving service][2Captcha] service with a positive balance, or you can try to test it using [sandbox] mode to solve captchas manually.
  Also, for `proxy` examples to work correctly, you need to have your own `proxy` and set it in the example code. The examples of captcha automation solving use captchas located on the [captchas demo pages](https://2captcha.com/demo).
 
 We have our own proxies that we can offer you. [Buy residential proxies] to avoid restrictions and blocks. [Quick start].
@@ -26,6 +26,8 @@ Official 2Captcha webpage for [selenium captcha solver](https://2captcha.com/p/s
     - [hCaptcha examples](#hcaptcha-examples)
       - [hCaptcha](#hcaptcha)
       - [hCaptcha + proxy](#hcaptcha--proxy)
+    - [Cloudflare example](#cloudflare-example)
+      - [Cloudflare Turnstile](#cloudflare-turnstile)
     - [Text captcha example](#text-captcha-example)
     - [Normal captcha examples](#normal-captcha-examples)
       - [Normal captcha (screenshot)](#normal-captcha-screenshot)
@@ -203,6 +205,24 @@ In these example implements bypassing hCaptcha located on the page https://2capt
 
 **Source code:** [`./examples/hCaptcha/hcaptcha_proxy.py`](./examples/hCaptcha/hcaptcha_proxy.py)
 
+### Cloudflare example
+
+Cloudflare is one of the most popular captcha types. Cloudflare has two types. First type is [Cloudflare Turnstile][cloudflare-turnstile] and second type is [Cloudflare challenge][cloudflare-challenge] page.
+
+- [Cloudflare Turnstile][cloudflare-turnstile] - In this case, the captcha is displayed on the target page, the captcha badge is embedded in the target page code. An example of implementation is shown on the page https://2captcha.com/demo/cloudflare-turnstile.
+
+- [Cloudflare challenge][cloudflare-challenge] - In this case, a redirect to the challenge page will occur to pass the captcha, as implemented here https://2captcha.com/demo/cloudflare-turnstile-challenge.
+
+The approach to bypassing these two types is different, so you need to determine which type of Cloudflare you are facing. Read more about bypassing Cloudflare Turnstile type below.
+
+#### Cloudflare Turnstile
+
+Token-based Cloudflare Turnstile solution.
+
+This example demonstrates how to bypass the Cloudflare Turnstile CAPTCHA located on the page https://2captcha.com/demo/cloudflare-turnstile. The Selenium library is used to automate browser actions and retrieve CAPTCHA parameters. To solve this type of Cloudflare CAPTCHA, it is necessary to send parameters such as pageurl and sitekey to the [2Captcha API](https://2captcha.com/2captcha-api#turnstile). After receiving the solution result (token), the script automatically uses the received answer on the page.
+
+**Source code:** [`./examples/cloudflare_turnstile/cloudflare_turnstile.py`](./examples/cloudflare_turnstile/cloudflare_turnstile.py)
+
 ### Text captcha example
 
 Text captcha solutions.
@@ -320,6 +340,8 @@ The graphics and trademarks included in this repository are not covered by the M
 [recaptcha-v2-callback-demo]: https://2captcha.com/demo/recaptcha-v2-callback
 [recaptcha-v2-enterprise-demo]: https://2captcha.com/demo/recaptcha-v2-enterprise
 [recaptcha-v3-enterprise-demo]: https://2captcha.com/demo/recaptcha-v3-enterprise
+[cloudflare-turnstile]: https://2captcha.com/demo/cloudflare-turnstile
+[cloudflare-challenge]: https://2captcha.com/demo/cloudflare-turnstile-challenge
 [normal-captcha-demo]: https://2captcha.com/demo/normal
 [hcaptcha-demo]: https://2captcha.com/demo/hcaptcha
 [2captcha]: https://2captcha.com
