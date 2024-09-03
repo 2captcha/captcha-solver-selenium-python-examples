@@ -69,7 +69,7 @@ def send_token(css_locator, captcha_token):
     Sends the captcha token to the MTCaptcha response field.
 
     Args:
-        css_locator (str):
+        css_locator (str): The CSS locator for the input field.
         captcha_token (str): The solved captcha token.
     """
     script = f"""
