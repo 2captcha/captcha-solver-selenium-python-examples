@@ -63,11 +63,11 @@ Set the `APIKEY` environment variable. You can get the `APIKEY` value in your pe
 
 Go to the examples directory and run the required example.
 
-Running the `reCAPTCHA.py` example:
+Running the `recaptcha_v2.py` example:
 
 ```
 cd examples/reCAPTCHA
-python recaptcha.py
+python recaptcha_v2.py
 ```
 
 ## Captcha solving code examples
