@@ -3,20 +3,23 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
-import time
 from twocaptcha import TwoCaptcha
 
+# Description: 
+# In this example, you will learn how to bypass the Cloudflare Turnstile CAPTCHA located on the page https://2captcha.com/demo/cloudflare-turnstile. This demonstration will guide you through the steps of interacting with and overcoming the CAPTCHA using specific techniques
+# The value of the `sitekey` parameter is extracted from the page code automaticly. 
 
 # CONFIGURATION
 
-url = "https://2captcha.com/demo/mtcaptcha"
+url = "https://2captcha.com/demo/cloudflare-turnstile"
 apikey = os.getenv('APIKEY_2CAPTCHA')
 
 
 # LOCATORS
 
-css_locator_for_input_send_token = 'input[name="mtcaptcha-verifiedtoken"]'
-submit_button_captcha_locator = "//button[@data-action='demo_action']"
+sitekey_locator = "//div[@id='cf-turnstile']"
+css_locator_for_input_send_token = 'input[name="cf-turnstile-response"]'
+submit_button_captcha_locator = "//button[@type='submit']"
 success_message_locator = "//p[contains(@class,'successMessage')]"
 
 
@@ -29,24 +32,23 @@ def get_element(locator):
 
 # ACTIONS
 
-def get_sitekey():
+def get_sitekey(locator):
     """
-    Retrieves the MTCaptcha sitekey from the webpage using JavaScript.
+    Extracts the sitekey from the specified element.
 
+    Args:
+        locator (str): The XPath locator of the element containing the sitekey.
     Returns:
-        str: The sitekey for MTCaptcha.
+        str: The sitekey value.
     """
-    time.sleep(3)  # Adding a delay to ensure the sitekey is loaded
-    sitekey = browser.execute_script("""
-        return window.mtcaptchaConfig.sitekey || window.mtcaptcha.getConfiguration().sitekey;
-        """)
-
-    print("Sitekey received")
+    sitekey_element = get_element(locator)
+    sitekey = sitekey_element.get_attribute('data-sitekey')
+    print(f"Sitekey received: {sitekey}")
     return sitekey
 
 def solver_captcha(apikey, sitekey, url):
     """
-    Solves the MTCaptcha using the 2Captcha service.
+    Solves the Claudflare Turnstile using the 2Captcha service.
 
     Args:
         apikey (str): The 2Captcha API key.
@@ -57,7 +59,7 @@ def solver_captcha(apikey, sitekey, url):
     """
     solver = TwoCaptcha(apikey)
     try:
-        result = solver.mtcaptcha(sitekey=sitekey, url=url)
+        result = solver.turnstile(sitekey=sitekey, url=url)
         print(f"Captcha solved")
         return result['code']
     except Exception as e:
@@ -66,7 +68,7 @@ def solver_captcha(apikey, sitekey, url):
 
 def send_token(css_locator, captcha_token):
     """
-    Sends the captcha token to the MTCaptcha response field.
+    Sends the captcha token to the Claudflare Turnstile response field.
 
     Args:
         css_locator (str): The CSS locator for the input field.
@@ -101,15 +103,14 @@ def final_message(locator):
     message = get_element(locator).text
     print(message)
 
-
-
 # MAIN LOGIC
 
 with webdriver.Chrome() as browser:
-    browser.get(url)
-    print("Started")
 
-    sitekey = get_sitekey()
+    browser.get(url)
+    print('Started')
+
+    sitekey = get_sitekey(sitekey_locator)
 
     token = solver_captcha(apikey, sitekey, url)
 
@@ -124,6 +125,5 @@ with webdriver.Chrome() as browser:
         print("Finished")
     else:
         print("Failed to solve captcha")
-
 
 
