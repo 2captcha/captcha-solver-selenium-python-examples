@@ -26,7 +26,7 @@ Official 2Captcha webpage for [selenium captcha solver](https://2captcha.com/p/s
     - [hCaptcha examples](#hcaptcha-examples)
       - [hCaptcha](#hcaptcha)
       - [hCaptcha + proxy](#hcaptcha--proxy)
-    - [Cloudflare example](#cloudflare-example)
+    - [Cloudflare examples](#cloudflare-examples)
       - [Cloudflare Turnstile](#cloudflare-turnstile)
       - [Cloudflare Challenge page](#cloudflare-challenge-page)
     - [Text captcha example](#text-captcha-example)
@@ -206,7 +206,7 @@ In these example implements bypassing hCaptcha located on the page https://2capt
 
 **Source code:** [`./examples/hCaptcha/hcaptcha_proxy.py`](./examples/hCaptcha/hcaptcha_proxy.py)
 
-### Cloudflare example
+### Cloudflare examples
 
 Cloudflare is one of the most popular captcha types. Cloudflare has two types. First type is [Cloudflare Turnstile][cloudflare-turnstile] and second type is [Cloudflare challenge][cloudflare-challenge] page.
 
@@ -222,7 +222,7 @@ Token-based Cloudflare Turnstile solution.
 
 This example demonstrates how to bypass the Cloudflare Turnstile CAPTCHA located on the page https://2captcha.com/demo/cloudflare-turnstile. The Selenium library is used to automate browser actions and retrieve CAPTCHA parameters. To solve this type of Cloudflare CAPTCHA, it is necessary to send parameters such as `pageurl` and `sitekey` to the [2Captcha API](https://2captcha.com/2captcha-api#turnstile). After receiving the solution result (token), the script automatically uses the received answer on the page.
 
-**Source code:** [`./examples/cloudflare_turnstile/cloudflare_turnstile.py`](./examples/cloudflare_turnstile/cloudflare_turnstile.py)
+**Source code:** [`./examples/cloudflare/cloudflare_turnstile.py`](./examples/cloudflare/cloudflare_turnstile.py)
 
 
 #### Cloudflare Challenge page
@@ -234,7 +234,7 @@ This example demonstrates how to bypass the Cloudflare Challenge located on the 
 > [!NOTE]
 > When a web page first loads, some JavaScript functions and objects (such as `window.turnstile`) may already be initialized and executed. If the interception script is launched too late, this may lead to the fact that the necessary parameters will already be lost, or the script simply will not have time to intercept the right moment. Refreshing the page ensures that everything starts from scratch and you trigger the interception at the right time.
 
-**Source code:** [`./examples/cloudflare_challenge_page/cloudflare_challenge_page.py`](./examples/cloudflare_challenge_page/cloudflare_challenge_page.py)
+**Source code:** [`./examples/cloudflare/cloudflare_challenge_page.py`](./examples/cloudflare/cloudflare_challenge_page.py)
 
 ### Text captcha example
 
