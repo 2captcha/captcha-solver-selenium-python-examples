@@ -60,7 +60,7 @@ def solver_captcha(sitekey, url):
     """
     try:
         result = solver.recaptcha(sitekey=sitekey, url=url)
-        print(f"Captcha solved")
+        print(f"Captcha solved. Token: {result['code']}.")
         return result
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -113,14 +113,21 @@ with webdriver.Chrome() as browser:
     browser.get(url)
     print('Started')
 
+    # Getting a site key
     sitekey = get_sitekey(sitekey_locator)
 
     if sitekey:
+        # Sent captcha to the solution in 2captcha API
         result = solver_captcha(sitekey, url)
 
         if result:
+            # From the response from the service we get the captcha id and token
             id, token = result['captchaId'], result['code']
+            # Applying the token using the callback function
             send_token(token)
+
+            # We check if there is a message about the successful solution of the captcha and send a report on the result
+            # using the captcha id
             final_message_and_report(success_message_locator, id)
             print("Finished")
         else:

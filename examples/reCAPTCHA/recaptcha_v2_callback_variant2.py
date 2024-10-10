@@ -91,6 +91,7 @@ def get_captcha_params(script):
             result = browser.execute_script(script)
             if not result or not result[0]:
                 raise IndexError("Callback name is empty or null")
+            # Extract the function name and sitekey
             callback_function_name = result[0]['function']
             sitekey = result[0]['sitekey']
             print("Got the callback function name and site key")
@@ -111,7 +112,7 @@ def solver_captcha(sitekey, url):
     """
     try:
         result = solver.recaptcha(sitekey=sitekey, url=url)
-        print(f"Captcha solved")
+        print(f"Captcha solved. Token: {result['code']}.")
         return result
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -167,14 +168,21 @@ with webdriver.Chrome() as browser:
     browser.get(url)
     print("Started")
 
+    # Getting a site key and callback function
     callback_function, sitekey = get_captcha_params(script)
 
     if sitekey:
+        # Sent captcha to the solution in 2captcha API
         result = solver_captcha(sitekey, url)
 
         if result:
+            # From the response from the service we get the captcha id and token
             id, token = result['captchaId'], result['code']
+            # Applying the token using the callback function
             send_token_callback(callback_function, token)
+
+            # We check if there is a message about the successful solution of the captcha and send a report on the result
+            # using the captcha id
             final_message_and_report(success_message_locator, id)
             print("Finished")
         else:

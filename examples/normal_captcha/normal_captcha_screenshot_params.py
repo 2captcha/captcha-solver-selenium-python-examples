@@ -56,7 +56,7 @@ def solver_captcha(image, **extra_options):
     """
     try:
         result = solver.normal(image, **extra_options)
-        print(f"Captcha solved")
+        print(f"Captcha solved. Answer: {result['code']}.")
         return result
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -138,13 +138,20 @@ with webdriver.Chrome() as browser:
     browser.get(url)
     print("Started")
 
+    # Getting captcha image
     image_base64 = get_image_base64(img_locator)
+    # Sent captcha to the solution in 2captcha API
     result = solver_captcha(image_base64, **extra_options)
 
     if result:
+        # From the response from the service we get the captcha id and an answer
         id, code = result['captchaId'], result['code']
+        # Sending an answer
         input_captcha_code(input_captcha_locator, code)
+        # Check if the answer is accepted
         click_check_button(submit_button_captcha_locator)
+        # We check if there is a message about the successful solution of the captcha and send a report on the result
+        # using the captcha id
         final_message_and_report(success_message_locator, id)
 
         browser.implicitly_wait(5)

@@ -77,6 +77,7 @@ def get_captcha_params(script):
             result = browser.execute_script(script)
             if not result or not result[0]:
                 raise IndexError("No reCaptcha parameters found")
+            # Extract the action's value and sitekey
             sitekey = result[0]['sitekey']
             action = result[0]['action']
             print('Parameters sitekey and action received')
@@ -101,7 +102,7 @@ def solver_captcha(sitekey, url, action):
     """
     try:
         result = solver.recaptcha(sitekey=sitekey, url=url, action=action, version='V3')
-        print(f"Captcha solved")
+        print(f"Captcha solved. Token: {result['code']}.")
         return result
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -168,15 +169,22 @@ with webdriver.Chrome() as browser:
     browser.get(url)
     print("Started")
 
+    # Getting a site key and action's value
     sitekey, action = get_captcha_params(script)
 
     if sitekey:
+        # Sent captcha to the solution in 2captcha API
         result = solver_captcha(sitekey, url, action)
 
         if result:
+            # From the response from the service we get the captcha id and token
             id, token = result['captchaId'], result['code']
+            # Applying the token on the page
             send_token(token)
+            # Checking whether the token has been accepted
             click_check_button(submit_button_captcha_locator)
+            # We check if there is a message about the successful solution of the captcha and send a report on the result
+            # using the captcha id
             final_message_and_report(success_message_locator, id)
             print("Finished")
         else:

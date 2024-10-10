@@ -107,7 +107,7 @@ def solver_captcha(params):
                                   data=params["data"],
                                   pagedata=params["pagedata"],
                                   useragent=params["userAgent"])
-        print(f"Captcha solved")
+        print(f"Captcha solved. Token: {result['code']}.")
         return result
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -170,16 +170,21 @@ with webdriver.Chrome(service=Service(), options=chrome_options) as browser:
     browser.get(url)
     print("Started")
 
+    # Getting captcha params
     params = get_captcha_params(intercept_script)
 
     if params:
+        # Sent captcha to the solution in 2captcha API
         result = solver_captcha(params)
 
         if result:
+            # From the response from the service we get the captcha id and token
             id, token = result['captchaId'], result['code']
+            # Applying the token on the page
             send_token_callback(token)
+            # We check if there is a message about the successful solution of the captcha and send a report on the result
+            # using the captcha id
             final_message_and_report(success_message_locator, id)
-
             print("Finished")
         else:
             print("Failed to solve captcha")

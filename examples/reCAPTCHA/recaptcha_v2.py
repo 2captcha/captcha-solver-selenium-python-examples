@@ -45,7 +45,7 @@ def get_sitekey(locator):
     """
     sitekey_element = get_present_element(locator)
     sitekey = sitekey_element.get_attribute('data-sitekey')
-    print(f"Sitekey received: {sitekey}")
+    print(f"Sitekey received: {sitekey}.")
     return sitekey
 
 def solver_captcha(sitekey, url):
@@ -60,10 +60,10 @@ def solver_captcha(sitekey, url):
     """
     try:
         result = solver.recaptcha(sitekey=sitekey, url=url)
-        print(f"Captcha solved")
+        print(f"Captcha solved. Token: {result['code']}.")
         return result
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred: {e}.")
         return None
 
 def send_token(captcha_token):
@@ -77,7 +77,7 @@ def send_token(captcha_token):
         document.querySelector('[id="g-recaptcha-response"]').innerText = '{captcha_token}';
     """
     browser.execute_script(script)
-    print("Token sent")
+    print("Token sent.")
 
 def click_check_button(locator):
     """
@@ -87,7 +87,7 @@ def click_check_button(locator):
         locator (str): The XPath locator of the check button.
     """
     get_clickable_element(locator).click()
-    print("Pressed the Check button")
+    print("Pressed the Check button.")
 
 def final_message_and_report(locator, id):
     """
@@ -111,35 +111,42 @@ def final_message_and_report(locator, id):
 
     except TimeoutException:
         # If the element is not found within the timeout
-        print("Timed out waiting for success message element")
+        print("Timed out waiting for success message element.")
         is_success = False
     except Exception as e:
         # If another error occurs
-        print(f"Error retrieving final message: {e}")
+        print(f"Error retrieving final message: {e}.")
         is_success = False
 
     # Send the report anyway
     solver.report(id, is_success)
-    print(f"Report sent for id: {id}, success: {is_success}")
+    print(f"Report sent for id: {id}, success: {is_success}.")
 
 # MAIN LOGIC
 
 with webdriver.Chrome() as browser:
     browser.get(url)
-    print('Started')
+    print('Started.')
 
+    # Getting a site key
     sitekey = get_sitekey(sitekey_locator)
 
     if sitekey:
+        # Sent captcha to the solution in 2captcha API
         result = solver_captcha(sitekey, url)
 
         if result:
+            # From the response from the service we get the captcha id and token
             id, token = result['captchaId'], result['code']
+            # Applying the token on the page
             send_token(token)
+            # Checking whether the token has been accepted
             click_check_button(submit_button_captcha_locator)
+            # We check if there is a message about the successful solution of the captcha and send a report on the result
+            # using the captcha id
             final_message_and_report(success_message_locator, id)
-            print("Finished")
+            print("Finished.")
         else:
-            print("Failed to solve captcha")
+            print("Failed to solve captcha.")
     else:
-        print("Sitekey not found")
+        print("Sitekey not found.")

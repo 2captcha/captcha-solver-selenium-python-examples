@@ -73,13 +73,23 @@ def parse_proxy_uri(proxy):
 
     Args:
         proxy (dict): Dictionary containing the proxy type and URI.
+        Example:
+        proxy = {
+            'type': 'http',
+            'uri': 'username:password@192.168.1.1:8080'
+        }
     Returns:
         tuple: A tuple containing scheme, login, password, IP, and port.
     """
+    # Extract proxy type and convert to lowercase
     scheme = proxy['type'].lower
+    # Split URI into authentication info and address (IP:port)
     auth, address = proxy['uri'].split('@')
+    # Extract login and password from auth
     login, password = auth.split(':')
+    # Extract IP and port from address
     ip, port = address.split(':')
+    # Return extracted proxy details
     return scheme, login, password, ip, port
 
 def setup_proxy(proxy):
@@ -92,10 +102,15 @@ def setup_proxy(proxy):
     Returns:
         Options: Configured Chrome options with proxy settings.
     """
+    # Initialize Chrome options to modify default Chrome behavior
     chrome_options = webdriver.ChromeOptions()
+    # Extract proxy details (scheme, username, password, IP, port)
     scheme, username, password, ip, port = parse_proxy_uri(proxy)
+    # Create a proxy extension with the extracted credentials
     proxies_extension = proxies(scheme, username, password, ip, port)
+    # Add proxy extension to Chrome options
     chrome_options.add_extension(proxies_extension)
+    # Return the configured Chrome options
     return chrome_options
 
 def get_captcha_params(script):
@@ -114,6 +129,7 @@ def get_captcha_params(script):
             result = browser.execute_script(script)
             if not result or not result[0]:
                 raise IndexError("No reCaptcha parameters found")
+            # Extract the action's value and sitekey
             sitekey = result[0]['sitekey']
             action = result[0]['action']
             print('Parameters sitekey and action received')
@@ -139,7 +155,7 @@ def solver_captcha(sitekey, url, action, proxy):
     """
     try:
         result = solver.recaptcha(sitekey=sitekey, url=url, action=action, version='V3', proxy=proxy)
-        print(f"Captcha solved")
+        print(f"Captcha solved. Token: {result['code']}.")
         return result
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -202,22 +218,29 @@ def final_message_and_report(locator, id):
 
 # MAIN LOGIC
 
+# Configure Chrome options with proxy settings
 chrome_options = setup_proxy(proxy)
 
 with webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options) as browser:
     browser.get(url)
     print("Started")
 
-    # Get captcha parameters
+    # Getting a site key and action's value
     sitekey, action = get_captcha_params(script)
 
     if sitekey:
+        # Sent captcha to the solution in 2captcha API
         result = solver_captcha(sitekey, url, action, proxy)
 
         if result:
+            # From the response from the service we get the captcha id and token
             id, token = result['captchaId'], result['code']
+            # Applying the token on the page
             send_token(token)
+            # Checking whether the token has been accepted
             click_check_button(submit_button_captcha_locator)
+            # We check if there is a message about the successful solution of the captcha and send a report on the result
+            # using the captcha id
             final_message_and_report(success_message_locator, id)
             print("Finished")
         else:

@@ -44,11 +44,16 @@ def get_sitekey(locator):
     Returns:
         str: The sitekey value.
     """
+    # Switch to the iframe using its XPath locator
     iframe_element = get_present_element(locator)
+    # Get the iframe's URL from the 'src' attribute
     url = iframe_element.get_attribute('src')
+    # Parse the URL to get different components
     parsed_url = urlparse(url)
+    # Extract the sitekey from the URL fragment
     params = parse_qs(parsed_url.fragment)
     sitekey = params.get('sitekey', [None])[0]
+    # Print the received sitekey for debugging
     print(f"Sitekey received: {sitekey}")
     return sitekey
 
@@ -64,7 +69,7 @@ def solver_captcha(sitekey, url):
     """
     try:
         result = solver.hcaptcha(sitekey=sitekey, url=url)
-        print(f"Captcha solved")
+        print(f"Captcha solved. Token: {result['code']}.")
         return result
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -135,15 +140,22 @@ with webdriver.Chrome() as browser:
     browser.get(url)
     print("Started")
 
+    # Getting a site key
     sitekey = get_sitekey(iframe_locator)
 
     if sitekey:
+        # Sent captcha to the solution in 2captcha API
         result = solver_captcha(sitekey, url)
 
         if result:
+            # From the response from the service we get the captcha id and token
             id, token = result['captchaId'], result['code']
+            # Applying the token on the page
             send_token(token)
+            # Checking whether the token has been accepted
             click_check_button(submit_button_captcha_locator)
+            # We check if there is a message about the successful solution of the captcha and send a report on the result
+            # using the captcha id
             final_message_and_report(success_message_locator, id)
             print("Finished")
         else:

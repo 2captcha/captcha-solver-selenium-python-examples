@@ -50,10 +50,15 @@ def parse_proxy_uri(proxy):
     Returns:
         tuple: A tuple containing scheme, login, password, IP, and port.
     """
+    # Extract proxy type and convert to lowercase
     scheme = proxy['type'].lower
+    # Split URI into authentication info and address (IP:port)
     auth, address = proxy['uri'].split('@')
+    # Extract login and password from auth
     login, password = auth.split(':')
+    # Extract IP and port from address
     ip, port = address.split(':')
+    # Return extracted proxy details
     return scheme, login, password, ip, port
 
 def setup_proxy(proxy):
@@ -66,19 +71,36 @@ def setup_proxy(proxy):
     Returns:
         Options: Configured Chrome options with proxy settings.
     """
+    # Initialize Chrome options to modify default Chrome behavior
     chrome_options = webdriver.ChromeOptions()
+    # Extract proxy details (scheme, username, password, IP, port)
     scheme, username, password, ip, port = parse_proxy_uri(proxy)
+    # Create a proxy extension with the extracted credentials
     proxies_extension = proxies(scheme, username, password, ip, port)
+    # Add proxy extension to Chrome options
     chrome_options.add_extension(proxies_extension)
+    # Return the configured Chrome options
     return chrome_options
 
 def get_sitekey(locator):
-    """Extracts the sitekey from the iframe's URL"""
+    """
+    Extracts the sitekey from the iframe's URL.
+
+    Args:
+        locator (str): The XPath locator of the iframe element.
+    Returns:
+        str: The sitekey value.
+    """
+    # Switch to the iframe using its XPath locator
     iframe_element = get_clickable_element(locator)
+    # Get the iframe's URL from the 'src' attribute
     url = iframe_element.get_attribute('src')
+    # Parse the URL to get different components
     parsed_url = urlparse(url)
+    # Extract the sitekey from the URL fragment
     params = parse_qs(parsed_url.fragment)
     sitekey = params.get('sitekey', [None])[0]
+    # Print the received sitekey for debugging
     print(f"Sitekey received: {sitekey}")
     return sitekey
 
@@ -94,14 +116,19 @@ def solver_captcha(sitekey, url, proxy):
     """
     try:
         result = solver.hcaptcha(sitekey=sitekey, url=url, proxy=proxy)
-        print(f"Captcha solved")
+        print(f"Captcha solved. Token: {result['code']}.")
         return result
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
 
 def send_token(captcha_token):
-    """Sends the captcha token to the hCaptcha iframe and response field"""
+    """
+    Sends the captcha token to the hCaptcha iframe and response field.
+
+    Args:
+        captcha_token (str): The solved captcha token.
+    """
     script = f"""
         document.querySelector('iframe[src*=\\"hcaptcha\\"]').setAttribute('data-hcaptcha-response', '{captcha_token}');
         document.querySelector('[name="h-captcha-response"]').innerText = '{captcha_token}';
@@ -110,7 +137,12 @@ def send_token(captcha_token):
     print("Token sent")
 
 def click_check_button(locator):
-    """Clicks the captcha check button"""
+    """
+    Clicks the captcha check button.
+
+    Args:
+        locator (str): The XPath locator of the check button.
+    """
     get_clickable_element(locator).click()
     print("Pressed the Check button")
 
@@ -158,15 +190,22 @@ with webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=
     browser.get(url)
     print("Started")
 
+    # Getting a site key
     sitekey = get_sitekey(iframe_locator)
 
     if sitekey:
+        # Sent captcha to the solution in 2captcha API
         result = solver_captcha(sitekey, url, proxy)
 
         if result:
+            # From the response from the service we get the captcha id and token
             id, token = result['captchaId'], result['code']
+            # Applying the token on the page
             send_token(token)
+            # Checking whether the token has been accepted
             click_check_button(submit_button_captcha_locator)
+            # We check if there is a message about the successful solution of the captcha and send a report on the result
+            # using the captcha id
             final_message_and_report(success_message_locator, id)
             print("Finished")
         else:
