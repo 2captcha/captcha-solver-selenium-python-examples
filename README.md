@@ -94,9 +94,13 @@ There are several fundamentally different ways to bypass reCAPTCHA V2:
 
 - **Token based solution** - Solution of reCAPTCHA V2 on [token based](https://2captcha.com/2captcha-api#solving_recaptchav2_new). In this case our worker receives a captcha sent to the service and solves it. The answer of the captcha is a token to be applied on the captcha page.
 
+  You can find examples of bypassing reCAPTCHA using a token-based method in the following directory: https://github.com/2captcha/captcha-solver-selenium-python-examples/tree/main/examples/reCAPTCHA.
+
 - **Grid** - Solution of reCAPTCHA V2 using [Grid method](https://2captcha.com/2captcha-api#grid). In this case it is necessary to send to the service the source image with captcha, and the instruction to the captcha. The worker will receive the image and select the quadrants matching the requirements. The response returns the numbers of quadrants corresponding to the instructions sent. When solving captchas with this method, it is necessary to independently retrieve the original captcha image and instructions to the captcha. Then after receiving the answer, you need to click on the required squares by yourself.
 
   This method can help to bypass complex reCAPTCHA implementations, for example, when it is difficult to figure out how to apply the token, or in cases when captcha traversal is intentionally complicated. The advantages of this approach are that the built-in logic of applying the token works when the token is applied. When solving in this way, it is necessary to pay attention to browser automation anti-detection, and take measures to hide the fact of browser automation.
+
+  Example of bypass for a reCAPTCHA v2 using the Grid method can be found in the repository: https://github.com/2captcha/selenium-recaptcha-solver-using-grid
 
 - **Coordinates** - Solution of reCAPTCHA V2 using [coordinates method](https://2captcha.com/2captcha-api#coordinates). In this case it is necessary to send a screenshot of the captcha to the service. The instruction to the captcha can be contained in the captcha image itself or can be sent as a separate parameter. The employee receives the image and clicks with the mouse on the corresponding coordinates on the image. The response returns the coordinates of the clicks that correspond to the sent instructions. In this case it is also necessary to retrieve images and instructions to them independently, then, after receiving the response, it is necessary to click on the received coordinates independently.
 
