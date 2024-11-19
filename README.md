@@ -2,7 +2,7 @@
 
 Examples of solving captchas using the Python programming language, and the [2captcha-python] and [Selenium] libraries.
 
-This repository contains examples of automation of solving the most popular types of captcha, such as [reCAPTCHA][recaptcha-v2-demo], [Cloudflare Turnstile][cloudflare-turnstile], [Cloudflare Challenge page][cloudflare-challenge], [normal captcha][normal-captcha-demo], [hCaptcha][hcaptcha-demo] and others. Selenium library is used for browser automation in the examples. The [2Captcha] service is used for solving captchas, therefore, for the correct work of the examples it is necessary to have an account in the [captcha solving service][2Captcha] service with a positive balance, or you can try to test it using [sandbox] mode to solve captchas manually.
+This repository contains examples of automation of solving the most popular types of captcha, such as [reCAPTCHA][recaptcha-v2-demo], [Cloudflare Turnstile][cloudflare-turnstile], [Cloudflare Challenge page][cloudflare-challenge], [normal captcha][normal-captcha-demo] and others. Selenium library is used for browser automation in the examples. The [2Captcha] service is used for solving captchas, therefore, for the correct work of the examples it is necessary to have an account in the [captcha solving service][2Captcha] service with a positive balance, or you can try to test it using [sandbox] mode to solve captchas manually.
  Also, for `proxy` examples to work correctly, you need to have your own `proxy` and set it in the example code. The examples of captcha automation solving use captchas located on the [captchas demo pages](https://2captcha.com/demo).
 
 We have our own proxies that we can offer you. [Buy residential proxies] to avoid restrictions and blocks. [Quick start].
@@ -23,9 +23,6 @@ Official 2Captcha webpage for [selenium captcha solver](https://2captcha.com/p/s
       - [reCAPTCHA V3](#recaptcha-v3)
       - [reCAPTCHA V3 (extended script)](#recaptcha-v3-extended-script)
       - [reCAPTCHA V3 + proxy](#recaptcha-v3--proxy)
-    - [hCaptcha examples](#hcaptcha-examples)
-      - [hCaptcha](#hcaptcha)
-      - [hCaptcha + proxy](#hcaptcha--proxy)
     - [Cloudflare examples](#cloudflare-examples)
       - [Cloudflare Turnstile](#cloudflare-turnstile)
       - [Cloudflare Challenge page](#cloudflare-challenge-page)
@@ -186,29 +183,6 @@ For the example to work correctly, you need to set the value of the `proxy` used
 
 **Source code:** [`./examples/reCAPTCAHA/recaptcha_v3_proxy.py`](./examples/reCAPTCHA/recaptcha_v3_proxy.py)
 
-### hCaptcha examples
-
-Below are examples of automating the hCaptcha solution using the Selenium library.
-
-In addition to the token, the captcha answer also constain a `userAgent` value, we recommend that you use you received `userAgent` value when applying the token.
-
-#### hCaptcha
-
-Token based hCaptcha solutions.
-
-In these example implements bypassing hCaptcha located on the page https://2captcha.com/demo/hcaptcha. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
-
-For the example to work correctly, you need to set the value of the `proxy` used in the example code.
-
-**Source code:** [`./examples/hCaptcha/hcaptcha.py`](./examples/hCaptcha/hcaptcha.py)
-
-#### hCaptcha + proxy
-
-Token based hCaptcha solutions using `proxy`.
-
-In these example implements bypassing hCaptcha located on the page https://2captcha.com/demo/hcaptcha using `proxy`. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
-
-**Source code:** [`./examples/hCaptcha/hcaptcha_proxy.py`](./examples/hCaptcha/hcaptcha_proxy.py)
 
 ### Cloudflare examples
 
@@ -360,7 +334,6 @@ The graphics and trademarks included in this repository are not covered by the M
 [cloudflare-turnstile]: https://2captcha.com/demo/cloudflare-turnstile
 [cloudflare-challenge]: https://2captcha.com/demo/cloudflare-turnstile-challenge
 [normal-captcha-demo]: https://2captcha.com/demo/normal
-[hcaptcha-demo]: https://2captcha.com/demo/hcaptcha
 [2captcha]: https://2captcha.com
 [2captcha-detector]: https://2captcha.com/blog/detector
 [2captcha-enterpage]: https://2captcha.com/enterpage
