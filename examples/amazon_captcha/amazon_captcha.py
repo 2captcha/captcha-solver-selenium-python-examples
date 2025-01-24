@@ -5,7 +5,7 @@ import os
 from twocaptcha import TwoCaptcha
 
 # CONFIGURATION
-url = "https://sso.nifty.com/sso/login/"
+url = "https://www.site.com/page/"
 apikey = os.getenv('APIKEY_2CAPTCHA')
 
 
