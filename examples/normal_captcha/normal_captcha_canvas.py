@@ -1,15 +1,17 @@
+import os
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import os
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
 
 
 # CONFIGURATION
 
 url = "https://2captcha.com/demo/normal"
-apikey = os.getenv('APIKEY_2CAPTCHA')
 
 
 # LOCATORS
@@ -22,11 +24,12 @@ success_message_locator = "//p[contains(@class,'successMessage')]"
 
 # GETTERS
 
-def get_locator(locator):
+def get_element(browser, locator):
     """
     Waits for the element specified by the locator to become clickable and returns its web element
 
     Args:
+        browser (webdriver): The Selenium WebDriver instance.
         locator (str): XPATH locator to find an element on the page
     Returns:
         WebElement: A web element that has become clickable
@@ -55,15 +58,21 @@ def solver_captcha(image, apikey):
         print(f"An error occurred: {e}")
         return None
 
-def get_image_canvas(locator):
+def get_image_canvas(browser, locator):
     """
     Gets the Base64 representation of an image displayed on a web page using canvas
 
     Args:
-        locator (str): CSS selector for locating an image on a page
+        browser (webdriver): The Selenium WebDriver instance.
+        locator (str): CSS selector for locating an image on a page.
     Returns:
         str: Base64 image string
     """
+
+    # Ensure the image element is present before executing JavaScript
+    WebDriverWait(browser, 30).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, locator))
+    )
 
     # JavaScript code to create a canvas, draw an image to the canvas and get its Base64 representation
     canvas_script = """
@@ -78,66 +87,83 @@ def get_image_canvas(locator):
         }
         return getBase64Image(document.querySelector(arguments[0]));
     """
-    base63_image = browser.execute_script(canvas_script, locator)
-    return base63_image
+    base64_image = browser.execute_script(canvas_script, locator)
+    return base64_image
 
-def input_captcha_code(locator, code):
+def input_captcha_code(browser, locator, code):
     """
     Enters the captcha solution code into the input field on the web page
 
     Args:
+        browser (webdriver): The Selenium WebDriver instance.
         locator (str): XPATH locator of the captcha input field
         code (str): Captcha solution code
     """
-    input_field = get_locator(locator)
+    input_field = get_element(browser, locator)
     input_field.send_keys(code)
     print("Entered the answer to the captcha")
 
-def click_check_button(locator):
+def click_check_button(browser, locator):
     """
     Clicks the check button on a web page
 
     Args:
+        browser (webdriver): The Selenium WebDriver instance.
         locator (str): XPATH locator of the captcha verification button
     """
-    button = get_locator(locator)
+    button = get_element(browser, locator)
     button.click()
     print("Pressed the Check button")
 
-def final_message(locator):
+def final_message(browser, locator):
     """
     Retrieves and prints the final success message.
 
     Args:
+        browser (webdriver): The Selenium WebDriver instance.
         locator (str): The XPath locator of the success message.
     """
-    message = get_locator(locator).text
+    message = get_element(browser, locator).text
     print(message)
 
 
-# MAIN LOGIC
+def main():
+    """
+    Runs the demo flow for solving a normal image captcha using 2Captcha.
 
-# Automatically closes the browser after block execution completes
-with webdriver.Chrome() as browser:
-    # Go to page with captcha
-    browser.get(url)
-    print("Started")
+    Helper functions (`get_image_canvas`, `solver_captcha`, `input_captcha_code`, etc.)
+    are designed so they can be copied and reused independently.
+    """
+    apikey = os.getenv("APIKEY_2CAPTCHA")
+    if not apikey:
+        raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-    # Getting captcha image in base64 format
-    image_base64 = get_image_canvas(img_locator)
+    # Automatically closes the browser after block execution completes
+    with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
+        # Go to page with captcha
+        browser.get(url)
+        print("Started")
 
-    # Solving captcha using 2Captcha
-    code = solver_captcha(image_base64, apikey)
+        # Getting captcha image in base64 format
+        image_base64 = get_image_canvas(browser, img_locator)
 
-    if code:
-        # Entering captcha code
-        input_captcha_code(input_captcha_locator, code)
-        # Pressing the test button
-        click_check_button(submit_button_captcha_locator)
-        # Receiving and displaying a success message
-        final_message(success_message_locator)
+        # Solving captcha using 2Captcha
+        code = solver_captcha(image_base64, apikey)
 
-        browser.implicitly_wait(5)
-    else:
-        print("Failed to solve captcha")
+        if code:
+            # Entering captcha code
+            input_captcha_code(browser, input_captcha_locator, code)
+            # Pressing the test button
+            click_check_button(browser, submit_button_captcha_locator)
+            # Receiving and displaying a success message
+            final_message(browser, success_message_locator)
+
+            # Explicit pause to observe the result
+            time.sleep(5)
+        else:
+            print("Failed to solve captcha")
+
+
+if __name__ == "__main__":
+    main()
 

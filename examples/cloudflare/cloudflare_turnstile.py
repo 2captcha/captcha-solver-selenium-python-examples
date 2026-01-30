@@ -1,8 +1,11 @@
+import os
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import os
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
 
 # Description: 
@@ -25,23 +28,28 @@ success_message_locator = "//p[contains(@class,'successMessage')]"
 
 # GETTERS
 
-def get_element(locator):
-    """Waits for an element to be clickable and returns it"""
+def get_element(browser, locator):
+    """
+    Waits for an element to be clickable and returns it.
+
+    This helper can be copied and reused in other projects that use Selenium.
+    """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
 
 # ACTIONS
 
-def get_sitekey(locator):
+def get_sitekey(browser, locator):
     """
     Extracts the sitekey from the specified element.
 
     Args:
+        browser (webdriver): The Selenium WebDriver instance.
         locator (str): The XPath locator of the element containing the sitekey.
     Returns:
         str: The sitekey value.
     """
-    sitekey_element = get_element(locator)
+    sitekey_element = get_element(browser, locator)
     sitekey = sitekey_element.get_attribute('data-sitekey')
     print(f"Sitekey received: {sitekey}")
     return sitekey
@@ -66,7 +74,7 @@ def solver_captcha(apikey, sitekey, url):
         print(f"An error occurred: {e}")
         return None
 
-def send_token(css_locator, captcha_token):
+def send_token(browser, css_locator, captcha_token):
     """
     Sends the captcha token to the Claudflare Turnstile response field.
 
@@ -83,47 +91,57 @@ def send_token(css_locator, captcha_token):
     browser.execute_script(script)
     print("Token sent")
 
-def click_check_button(locator):
+def click_check_button(browser, locator):
     """
     Clicks the captcha check button.
 
     Args:
         locator (str): The XPath locator of the check button.
     """
-    get_element(locator).click()
+    get_element(browser, locator).click()
     print("Pressed the Check button")
 
-def final_message(locator):
+def final_message(browser, locator):
     """
     Retrieves and prints the final success message.
 
     Args:
         locator (str): The XPath locator of the success message.
     """
-    message = get_element(locator).text
+    message = get_element(browser, locator).text
     print(message)
 
-# MAIN LOGIC
 
-with webdriver.Chrome() as browser:
+def main():
+    """
+    Runs the demo flow for solving Cloudflare Turnstile using 2Captcha.
 
-    browser.get(url)
-    print('Started')
+    Helper functions (`get_sitekey`, `solver_captcha`, `send_token`, etc.)
+    are designed so they can be copied and reused independently.
+    """
+    apikey = os.getenv("APIKEY_2CAPTCHA")
+    if not apikey:
+        raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-    sitekey = get_sitekey(sitekey_locator)
+    with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
+        browser.get(url)
+        print('Started')
 
-    token = solver_captcha(apikey, sitekey, url)
+        sitekey = get_sitekey(browser, sitekey_locator)
 
-    if token:
+        token = solver_captcha(apikey, sitekey, url)
 
-        send_token(css_locator_for_input_send_token, token)
+        if token:
+            send_token(browser, css_locator_for_input_send_token, token)
+            click_check_button(browser, submit_button_captcha_locator)
+            final_message(browser, success_message_locator)
 
-        click_check_button(submit_button_captcha_locator)
-
-        final_message(success_message_locator)
-
-        print("Finished")
-    else:
-        print("Failed to solve captcha")
+            # Explicit pause to observe the result
+            time.sleep(5)
+            print("Finished")
+        else:
+            print("Failed to solve captcha")
 
 
+if __name__ == "__main__":
+    main()

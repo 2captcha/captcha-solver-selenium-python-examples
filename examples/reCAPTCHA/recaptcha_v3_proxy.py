@@ -69,7 +69,7 @@ def parse_proxy_uri(proxy):
     Returns:
         tuple: A tuple containing scheme, login, password, IP, and port.
     """
-    scheme = proxy['type'].lower
+    scheme = proxy['type'].lower()
     auth, address = proxy['uri'].split('@')
     login, password = auth.split(':')
     ip, port = address.split(':')

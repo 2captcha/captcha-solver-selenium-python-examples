@@ -8,14 +8,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
-
 
 
 # CONFIGURATION
 
 url = "https://2captcha.com/demo/cloudflare-turnstile-challenge"
-apikey = os.getenv('APIKEY_2CAPTCHA')
 
 
 """
@@ -53,14 +52,18 @@ success_message_locator = "//p[contains(@class,'successMessage')]"
 
 # GETTERS
 
-def get_element(locator):
-    """Waits for an element to be clickable and returns it"""
+def get_element(browser, locator):
+    """
+    Waits for an element to be clickable and returns it.
+
+    This helper can be copied and reused in other projects that use Selenium.
+    """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
 
 # ACTIONS
 
-def get_captcha_params(script):
+def get_captcha_params(browser, script):
     """
     Refreshes the page, injects a JavaScript script to intercept Turnstile parameters, and retrieves them.
 
@@ -70,13 +73,13 @@ def get_captcha_params(script):
     Returns:
         dict: The intercepted Turnstile parameters as a dictionary.
     """
-    browser.refresh() # Refresh the page to ensure the script is applied correctly
+    browser.refresh()  # Refresh the page to ensure the script is applied correctly
 
-    browser.execute_script(script) # Inject the interception script
+    browser.execute_script(script)  # Inject the interception script
 
-    time.sleep(5) # Allow some time for the script to execute
+    time.sleep(5)  # Allow some time for the script to execute
 
-    logs = browser.get_log("browser") # Retrieve the browser logs
+    logs = browser.get_log("browser")  # Retrieve the browser logs
     params = None
     for log in logs:
         if "intercepted-params:" in log['message']:
@@ -114,7 +117,7 @@ def solver_captcha(apikey, params):
         print(f"An error occurred: {e}")
         return None
 
-def send_token_callback(token):
+def send_token_callback(browser, token):
     """
     Executes the callback function with the given token.
 
@@ -125,40 +128,55 @@ def send_token_callback(token):
     browser.execute_script(script)
     print("The token is sent to the callback function")
 
-def final_message(locator):
+def final_message(browser, locator):
     """
     Retrieves and prints the final success message.
 
     Args:
         locator (str): The XPath locator of the success message.
     """
-    message = get_element(locator).text
+    message = get_element(browser, locator).text
     print(message)
 
 
-# MAIN LOGIC
+def main():
+    """
+    Runs the demo flow for solving Cloudflare Turnstile challenge using 2Captcha.
 
-chrome_options = Options()
-chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                            "Chrome/126.0.0.0 Safari/537.36")
-# Set logging preferences to capture only console logs
-chrome_options.set_capability("goog:loggingPrefs", {"browser": "INFO"})
+    Helper functions (`get_captcha_params`, `solver_captcha`, `send_token_callback`, etc.)
+    are designed so they can be copied and reused independently.
+    """
+    apikey = os.getenv("APIKEY_2CAPTCHA")
+    if not apikey:
+        raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-with webdriver.Chrome(service=Service(), options=chrome_options) as browser:
-    browser.get(url)
-    print("Started")
+    chrome_options = Options()
+    chrome_options.add_argument(
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    )
+    # Set logging preferences to capture only console logs
+    chrome_options.set_capability("goog:loggingPrefs", {"browser": "INFO"})
 
-    params = get_captcha_params(intercept_script)
+    with webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options) as browser:
+        browser.get(url)
+        print("Started")
 
-    if params:
-        token = solver_captcha(apikey, params)
+        params = get_captcha_params(browser, intercept_script)
 
-        if token:
-            send_token_callback(token)
-            final_message(success_message_locator)
-            time.sleep(5)
-            print("Finished")
+        if params:
+            token = solver_captcha(apikey, params)
+
+            if token:
+                send_token_callback(browser, token)
+                final_message(browser, success_message_locator)
+                time.sleep(5)
+                print("Finished")
+            else:
+                print("Failed to solve captcha")
         else:
-            print("Failed to solve captcha")
-    else:
-        print("Failed to intercept parameters")
+            print("Failed to intercept parameters")
+
+
+if __name__ == "__main__":
+    main()

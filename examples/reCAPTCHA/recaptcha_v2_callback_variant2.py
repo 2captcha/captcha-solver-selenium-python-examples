@@ -1,9 +1,11 @@
+import os
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import os
-import time
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
 
 # Description: 
@@ -13,7 +15,6 @@ from twocaptcha import TwoCaptcha
 # CONFIGURATION
 
 url = "https://2captcha.com/demo/recaptcha-v2-callback"
-apikey = os.getenv('APIKEY_2CAPTCHA')
 
 # JavaScript script to find reCAPTCHA clients and extract sitekey and callback function
 script = """
@@ -66,14 +67,18 @@ success_message_locator = "//p[contains(@class,'successMessage')]"
 
 # GETTERS
 
-def get_element(locator):
-    """Waits for an element to be clickable and returns it"""
+def get_element(browser, locator):
+    """
+    Waits for an element to be clickable and returns it.
+
+    This helper can be copied and reused in other projects that use Selenium.
+    """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
 
 # ACTIONS
 
-def get_captcha_params(script):
+def get_captcha_params(browser, script):
     """
     Executes the given JavaScript script to extract the captcha callback function name and sitekey.
 
@@ -116,7 +121,7 @@ def solver_captcha(apikey, sitekey, url):
         print(f"An error occurred: {e}")
         return None
 
-def send_token_callback(callback_function, token):
+def send_token_callback(browser, callback_function, token):
     """
     Executes the callback function with the given token.
 
@@ -128,40 +133,52 @@ def send_token_callback(callback_function, token):
     browser.execute_script(script)
     print("The token is sent to the callback function")
 
-def final_message(locator):
+def final_message(browser, locator):
     """
     Retrieves and prints the final success message.
 
     Args:
         locator (str): The XPath locator of the success message.
     """
-    message = get_element(locator).text
+    message = get_element(browser, locator).text
     print(message)
 
 
-with webdriver.Chrome() as browser:
-    browser.get(url)
-    print("Started")
+def main():
+    """
+    Runs the demo flow for solving reCaptcha v2 with a callback using
+    automatic extraction of callback and sitekey.
 
-    # Extracting callback function name and sitekey using the provided script
-    callback_function, sitekey = get_captcha_params(script)
+    Helper functions (`get_captcha_params`, `solver_captcha`, `send_token_callback`, etc.)
+    are designed so they can be copied and reused independently.
+    """
+    apikey = os.getenv("APIKEY_2CAPTCHA")
+    if not apikey:
+        raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-    # Solving the captcha and receiving the token
-    token = solver_captcha(apikey, sitekey, url)
+    with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
+        browser.get(url)
+        print("Started")
 
-    if token:
-        # Sending the solved captcha token to the callback function
-        send_token_callback(callback_function, token)
+        # Extracting callback function name and sitekey using the provided script
+        callback_function, sitekey = get_captcha_params(browser, script)
 
-        # Retrieving and printing the final success message
-        final_message(success_message_locator)
+        # Solving the captcha and receiving the token
+        token = solver_captcha(apikey, sitekey, url)
 
-        browser.implicitly_wait(5)
-        print("Finished")
-    else:
-        print("Failed to solve captcha")
+        if token:
+            # Sending the solved captcha token to the callback function
+            send_token_callback(browser, callback_function, token)
+
+            # Retrieving and printing the final success message
+            final_message(browser, success_message_locator)
+
+            # Explicit pause to observe the result
+            time.sleep(5)
+            print("Finished")
+        else:
+            print("Failed to solve captcha")
 
 
-
-
-
+if __name__ == "__main__":
+    main()

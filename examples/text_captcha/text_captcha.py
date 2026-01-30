@@ -1,15 +1,17 @@
+import os
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import os
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
 
 
 # CONFIGURATION
 
 url = "https://2captcha.com/demo/text"
-apikey = os.getenv('APIKEY_2CAPTCHA')
 
 
 # LOCATORS
@@ -21,23 +23,28 @@ success_message_locator = "//p[contains(@class,'successMessage')]"
 
 # GETTERS
 
-def get_element(locator):
-    """Waits for an element to be clickable and returns it"""
+def get_element(browser, locator):
+    """
+    Waits for an element to be clickable and returns it.
+
+    This helper can be copied and reused in other projects that use Selenium.
+    """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
 
 # ACTIONS
 
-def get_captcha_question(locator):
+def get_captcha_question(browser, locator):
     """
     Extracts the captcha question text from the specified element.
 
     Args:
+        browser (webdriver): The Selenium WebDriver instance.
         locator (str): XPath locator of the captcha question element
     Returns:
         str: Text of the captcha question
     """
-    question_element = get_element(locator)
+    question_element = get_element(browser, locator)
     text_question = question_element.text
     return text_question
 
@@ -60,65 +67,81 @@ def solver_captcha(question, apikey):
         print(f"An error occurred: {e}")
         return None
 
-def send_answer(locator, answer):
+def send_answer(browser, locator, answer):
     """
     Inputs the captcha answer into the specified input field.
 
     Args:
+        browser (webdriver): The Selenium WebDriver instance.
         locator (str): XPath locator of the input field
         answer (str): Captcha answer
     """
-    input_element = get_element(locator)
+    input_element = get_element(browser, locator)
     input_element.send_keys(answer)
     print("Entering the answer to captcha")
 
-def click_check_button(locator):
+def click_check_button(browser, locator):
     """
     Clicks the check button on a web page
 
     Args:
+        browser (webdriver): The Selenium WebDriver instance.
         locator (str): XPATH locator of the captcha verification button
     """
-    button = get_element(locator)
+    button = get_element(browser, locator)
     button.click()
     print("Pressed the Check button")
 
-def final_message(locator):
+def final_message(browser, locator):
     """
     Retrieves and prints the final success message.
 
     Args:
         locator (str): The XPath locator of the success message.
     """
-    message = get_element(locator).text
+    message = get_element(browser, locator).text
     print(message)
 
 
-# MAIN LOGIC
+def main():
+    """
+    Runs the demo flow for solving a text captcha using 2Captcha.
 
-# Automatically closes the browser after block execution completes
-with webdriver.Chrome() as browser:
-    # Go to page with captcha
-    browser.get(url)
-    print("Started")
+    Helper functions (`get_captcha_question`, `solver_captcha`, `send_answer`, etc.)
+    are designed so they can be copied and reused independently.
+    """
+    apikey = os.getenv("APIKEY_2CAPTCHA")
+    if not apikey:
+        raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-    # Get the text of the captcha question
-    captcha_question = get_captcha_question(captcha_question_locator)
+    # Automatically closes the browser after block execution completes
+    with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
+        # Go to page with captcha
+        browser.get(url)
+        print("Started")
 
-    # Solve the captcha using 2Captcha
-    answer = solver_captcha(captcha_question, apikey)
+        # Get the text of the captcha question
+        captcha_question = get_captcha_question(browser, captcha_question_locator)
 
-    if answer:
-        # Enter the captcha answer
-        send_answer(captcha_input_locator, answer)
+        # Solve the captcha using 2Captcha
+        answer = solver_captcha(captcha_question, apikey)
 
-        # Click the check button
-        click_check_button(submit_button_captcha_locator)
+        if answer:
+            # Enter the captcha answer
+            send_answer(browser, captcha_input_locator, answer)
 
-        # Retrieve and display the success message
-        final_message(success_message_locator)
+            # Click the check button
+            click_check_button(browser, submit_button_captcha_locator)
 
-        browser.implicitly_wait(5)
-        print("Finished")
-    else:
-        print("Failed to solve captcha")
+            # Retrieve and display the success message
+            final_message(browser, success_message_locator)
+
+            # Explicit pause to observe the result
+            time.sleep(5)
+            print("Finished")
+        else:
+            print("Failed to solve captcha")
+
+
+if __name__ == "__main__":
+    main()

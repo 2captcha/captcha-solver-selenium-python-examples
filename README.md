@@ -5,6 +5,8 @@ Examples of solving captchas using the Python programming language, and the [2ca
 This repository contains examples of automation of solving the most popular types of captcha, such as [reCAPTCHA][recaptcha-v2-demo], [Cloudflare Turnstile][cloudflare-turnstile], [Cloudflare Challenge page][cloudflare-challenge], [normal captcha][normal-captcha-demo] and others. Selenium library is used for browser automation in the examples. The [2Captcha] service is used for solving captchas, therefore, for the correct work of the examples it is necessary to have an account in the [captcha solving service][2Captcha] service with a positive balance, or you can try to test it using [sandbox] mode to solve captchas manually.
  Also, for `proxy` examples to work correctly, you need to have your own `proxy` and set it in the example code. The examples of captcha automation solving use captchas located on the [captchas demo pages](https://2captcha.com/demo).
 
+Each example is built as a “constructor”: the code is split into small, focused functions that you can copy and reuse independently in your own projects.
+
 We have our own proxies that we can offer you. [Buy residential proxies] to avoid restrictions and blocks. [Quick start].
 Official 2Captcha webpage for [selenium captcha solver](https://2captcha.com/p/selenium-captcha-solver).
 
@@ -53,9 +55,9 @@ cd captcha-solver-selenium-python-examples
 
 ### Configure:
 
-Set the `APIKEY` environment variable. You can get the `APIKEY` value in your personal [2captcha][2captcha-enterpage] account.
+Set the `APIKEY_2CAPTCHA` environment variable. You can get the `APIKEY_2CAPTCHA` value in your personal [2captcha][2captcha-enterpage] account.
 
-`export APIKEY=your_api_key`
+`export APIKEY_2CAPTCHA=your_api_key`
 
 ### Run:
 
@@ -67,6 +69,10 @@ Running the `recaptcha_v2.py` example:
 cd examples/reCAPTCHA
 python recaptcha_v2.py
 ```
+
+## Using these examples as a constructor
+
+Each captcha type lives in its own directory and examples do not depend on each other. Inside every example you will find small “building blocks”: functions for extracting captcha parameters from the page, sending them to the 2Captcha API, and applying the received answer in the browser. You can either run the examples as-is or take only the pieces you need and integrate them into your own automation scripts.
 
 ## Captcha solving code examples
 
@@ -242,11 +248,11 @@ In these example implements bypassing Normal captcha located on the page https:/
 
 **Source code:** [`./examples/normal_captcha/normal_captcha_canvas.py`](./examples/normal_captcha/normal_captcha_canvas.py)
 
-#### Normal captcha (canvas + additional parameters)
+#### Normal captcha (screenshot + additional parameters)
 
 Normal captcha solutions using additional parameters.
 
-In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. The captcha is sent using additional parameters such as `numeric`, `minLen`, `maxLen`, `lang`. Sending additional parameters allows you to increase the accuracy of the captcha solution. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is extracted using `canvas`.
+In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. The captcha is sent using additional parameters such as `numeric`, `minLen`, `maxLen`, `lang`. Sending additional parameters allows you to increase the accuracy of the captcha solution. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is retrieved by creating a screenshot of the captcha image.
 
 **Source code:** [`./examples/normal_captcha/normal_captcha_screenshot_params.py`](./examples/normal_captcha/normal_captcha_screenshot_params.py)
 

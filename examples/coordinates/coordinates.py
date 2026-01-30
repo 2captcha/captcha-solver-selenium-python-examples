@@ -1,9 +1,12 @@
+import os
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-import os
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
 
 
@@ -15,7 +18,7 @@ apikey = os.getenv('APIKEY_2CAPTCHA')
 
 # LOCATORS
 
-img_locator_captcha_for_get = "._widgetForm_1f3oo_26 img"
+img_locator_captcha_for_get = "._widgetForm_151cx_26 img"
 img_locator_captcha_for_click = "//div[@class='_widget_s7q0j_5']//img"
 submit_button_captcha_locator = "//button[@type='submit']"
 success_message_locator = "//p[contains(@class,'successMessage')]"
@@ -23,8 +26,12 @@ success_message_locator = "//p[contains(@class,'successMessage')]"
 
 # GETTERS
 
-def get_element(locator):
-    """Waits for an element to be clickable and returns it"""
+def get_element(browser, locator):
+    """
+    Waits for an element to be clickable and returns it.
+
+    This helper can be copied and reused in other projects that use Selenium.
+    """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
 
@@ -49,15 +56,21 @@ def solver_captcha(image, apikey):
         print(f"An error occurred: {e}")
         return None
 
-def get_image_canvas(locator):
+def get_image_canvas(browser, locator):
     """
     Gets the Base64 representation of an image displayed on a web page using canvas
 
     Args:
-        locator (str): CSS selector for locating an image on a page
+        browser (webdriver): The Selenium WebDriver instance.
+        locator (str): CSS selector for locating an image on a page.
     Returns:
-        str: Base64 image string
+        str: Base64 image string.
     """
+
+    # Ensure the image element is present before executing JavaScript
+    WebDriverWait(browser, 30).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, locator))
+    )
 
     # JavaScript code to create a canvas, draw an image to the canvas and get its Base64 representation
     canvas_script = """
@@ -72,8 +85,8 @@ def get_image_canvas(locator):
         }
         return getBase64Image(document.querySelector(arguments[0]));
     """
-    base63_image = browser.execute_script(canvas_script, locator)
-    return base63_image
+    base64_image = browser.execute_script(canvas_script, locator)
+    return base64_image
 
 def pars_coordinates(answer_to_captcha):
     """
@@ -101,7 +114,7 @@ def pars_coordinates(answer_to_captcha):
     print("The received response is converted into a list of coordinates")
     return coordinates_list
 
-def clicks_on_coordinates(coordinates_list, img_locator_captcha):
+def clicks_on_coordinates(browser, coordinates_list, img_locator_captcha):
     """
     Clicks on the specified coordinates within the image element using ActionChains.
 
@@ -111,7 +124,7 @@ def clicks_on_coordinates(coordinates_list, img_locator_captcha):
     """
     action = ActionChains(browser)
 
-    img_element = get_element(img_locator_captcha)
+    img_element = get_element(browser, img_locator_captcha)
 
     # Getting the initial coordinates of the image element
     location = img_element.location
@@ -132,50 +145,62 @@ def clicks_on_coordinates(coordinates_list, img_locator_captcha):
 
     print('The coordinates are marked on the image')
 
-def click_check_button(locator):
+def click_check_button(browser, locator):
     """
     Clicks the check button on a web page
     Args:
         locator (str): XPATH locator of the captcha verification button
     """
-    button = get_element(locator)
+    button = get_element(browser, locator)
     button.click()
     print("Pressed the Check button")
 
-def final_message(locator):
+def final_message(browser, locator):
     """
     Retrieves and prints the final success message.
 
     Args:
         locator (str): The XPath locator of the success message.
     """
-    message = get_element(locator).text
+    message = get_element(browser, locator).text
     print(message)
 
-# MAIN LOGIC
 
-# Automatically closes the browser after block execution completes
-with webdriver.Chrome() as browser:
-    # Go to page with captcha
-    browser.get(url)
-    print("Started")
+def main():
+    """
+    Runs the demo flow for solving click-based captcha with coordinates via 2Captcha.
 
-    # Getting captcha image in base64 format
-    image_base64 = get_image_canvas(img_locator_captcha_for_get)
+    Helper functions (`get_image_canvas`, `solver_captcha`, `pars_coordinates`,
+    `clicks_on_coordinates`, etc.) are designed so they can be copied and reused independently.
+    """
+    apikey = os.getenv("APIKEY_2CAPTCHA")
+    if not apikey:
+        raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-    answer_to_captcha = solver_captcha(image_base64, apikey)
+    # Automatically closes the browser after block execution completes
+    with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
+        # Go to page with captcha
+        browser.get(url)
+        print("Started")
 
-    if answer_to_captcha:
+        # Getting captcha image in base64 format
+        image_base64 = get_image_canvas(browser, img_locator_captcha_for_get)
 
-        coordinates_list = pars_coordinates(answer_to_captcha)
+        # Solving captcha and receiving answer string with coordinates
+        answer_to_captcha = solver_captcha(image_base64, apikey)
 
-        clicks_on_coordinates(coordinates_list, img_locator_captcha_for_click)
+        if answer_to_captcha:
+            coordinates_list = pars_coordinates(answer_to_captcha)
+            clicks_on_coordinates(browser, coordinates_list, img_locator_captcha_for_click)
+            click_check_button(browser, submit_button_captcha_locator)
+            final_message(browser, success_message_locator)
 
-        click_check_button(submit_button_captcha_locator)
+            # Explicit pause to observe the result
+            time.sleep(5)
+            print("Finished")
+        else:
+            print("Failed to solve captcha")
 
-        final_message(success_message_locator)
 
-        browser.implicitly_wait(5)
-        print("Finished")
-    else:
-        print("Failed to solve captcha")
+if __name__ == "__main__":
+    main()
