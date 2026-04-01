@@ -2,12 +2,11 @@ import os
 import time
 import sys
 from pathlib import Path
-from selenium import webdriver
+from seleniumbase import Driver
+from selenium.common.exceptions import JavascriptException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
 from twocaptcha import TwoCaptcha
 
 # Allow running this script from any working directory by adding the project root to sys.path
@@ -20,9 +19,10 @@ from utilities.proxy_extension import proxies
 # CONFIGURATION
 
 url = "https://2captcha.com/demo/recaptcha-v2-callback"
+apikey = os.getenv("APIKEY_2CAPTCHA")
 proxy = {
     'type': 'HTTPS',
-    'uri': 'ub6900fef552505bc-zone-custom-region-cz-st-prahahlavnimesto-city-prague:ub6900fef552505bT@eu.proxy.2captcha.com:2333',
+    'uri': 'username:password@ip:port',
 }
 
 # JavaScript script to find reCAPTCHA clients and extract sitekey and callback function
@@ -30,8 +30,9 @@ script = """
     function findRecaptchaClients() {
   // eslint-disable-next-line camelcase
   if (typeof (___grecaptcha_cfg) !== 'undefined') {
+    const clients = ___grecaptcha_cfg.clients || {};
     // eslint-disable-next-line camelcase, no-undef
-    return Object.entries(___grecaptcha_cfg.clients).map(([cid, client]) => {
+    return Object.entries(clients).map(([cid, client]) => {
       const data = { id: cid, version: cid >= 10000 ? 'V3' : 'V2' };
       const objects = Object.entries(client).filter(([_, value]) => value && typeof value === 'object');
 
@@ -79,7 +80,7 @@ def get_element(browser, locator):
     """
     Waits for an element to be clickable and returns it.
 
-    This helper can be copied and reused in other projects that use Selenium.
+    This helper can be copied and reused in other projects that use SeleniumBase.
     """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
@@ -103,19 +104,17 @@ def parse_proxy_uri(proxy):
 
 def setup_proxy(proxy):
     """
-    Sets up the proxy configuration for Chrome browser.
+    Builds a Chrome extension zip for authenticated proxy usage.
 
     Args:
         proxy (dict): Dictionary containing the proxy type and URI.
 
     Returns:
-        Options: Configured Chrome options with proxy settings.
+        str: Path to the generated proxy extension zip.
     """
-    chrome_options = webdriver.ChromeOptions()
     scheme, username, password, ip, port = parse_proxy_uri(proxy)
     proxies_extension = proxies(scheme, username, password, ip, port)
-    chrome_options.add_extension(proxies_extension)
-    return chrome_options
+    return proxies_extension
 
 def get_captcha_params(browser, script):
     """
@@ -126,19 +125,42 @@ def get_captcha_params(browser, script):
     Returns:
         tuple: A tuple containing the callback function name and the sitekey.
     """
+    WebDriverWait(browser, 30).until(
+        lambda driver: driver.execute_script("""
+            return Boolean(
+                window.___grecaptcha_cfg &&
+                ___grecaptcha_cfg.clients &&
+                Object.keys(___grecaptcha_cfg.clients).length
+            );
+        """)
+    )
+
     retries = 0
-    while retries < 2:
+    while retries < 3:
         try:
             result = browser.execute_script(script)
-            if not result or not result[0]:
-                raise IndexError("Callback name is empty or null")
-            callback_function_name = result[0]['function']
-            sitekey = result[0]['sitekey']
+            if not result:
+                raise IndexError("reCAPTCHA clients list is empty")
+
+            captcha_data = next(
+                (
+                    item for item in result
+                    if item and item.get("sitekey") and item.get("function")
+                ),
+                None,
+            )
+            if not captcha_data:
+                raise IndexError("Callback function or sitekey is not ready yet")
+
+            callback_function_name = captcha_data['function']
+            sitekey = captcha_data['sitekey']
             print("Got the callback function name and site key")
             return callback_function_name, sitekey
-        except (IndexError, KeyError, TypeError):
+        except (IndexError, KeyError, TypeError, JavascriptException):
             retries += 1
             time.sleep(1)  # Wait a bit before retrying
+
+    raise TimeoutException("Timed out waiting for reCAPTCHA callback and sitekey")
 
 def solver_captcha(apikey, sitekey, url, proxy):
     """
@@ -192,14 +214,17 @@ def main():
     `solver_captcha`, `send_token_callback`, etc.) are designed so they can be
     copied and reused independently.
     """
-    apikey = os.getenv("APIKEY_2CAPTCHA")
     if not apikey:
         raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-    # Configure Chrome options with proxy settings
-    chrome_options = setup_proxy(proxy)
+    # Generate a Chrome extension that applies authenticated proxy settings
+    proxy_extension_zip = setup_proxy(proxy)
 
-    with webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options) as browser:
+    with Driver(
+        browser="chrome",
+        headless=False,
+        extension_zip=proxy_extension_zip,
+    ) as browser:
         browser.get(url)
         print("Started")
 

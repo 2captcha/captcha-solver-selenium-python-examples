@@ -1,11 +1,10 @@
 import os
 import time
-from selenium import webdriver
+from seleniumbase import Driver
+from selenium.common.exceptions import JavascriptException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
 
 # Description: 
@@ -15,14 +14,16 @@ from twocaptcha import TwoCaptcha
 # CONFIGURATION
 
 url = "https://2captcha.com/demo/recaptcha-v2-callback"
+apikey = os.getenv("APIKEY_2CAPTCHA")
 
 # JavaScript script to find reCAPTCHA clients and extract sitekey and callback function
 script = """
     function findRecaptchaClients() {
   // eslint-disable-next-line camelcase
   if (typeof (___grecaptcha_cfg) !== 'undefined') {
+    const clients = ___grecaptcha_cfg.clients || {};
     // eslint-disable-next-line camelcase, no-undef
-    return Object.entries(___grecaptcha_cfg.clients).map(([cid, client]) => {
+    return Object.entries(clients).map(([cid, client]) => {
       const data = { id: cid, version: cid >= 10000 ? 'V3' : 'V2' };
       const objects = Object.entries(client).filter(([_, value]) => value && typeof value === 'object');
 
@@ -71,7 +72,7 @@ def get_element(browser, locator):
     """
     Waits for an element to be clickable and returns it.
 
-    This helper can be copied and reused in other projects that use Selenium.
+    This helper can be copied and reused in other projects that use SeleniumBase.
     """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
@@ -87,19 +88,42 @@ def get_captcha_params(browser, script):
     Returns:
         tuple: A tuple containing the callback function name and the sitekey.
     """
+    WebDriverWait(browser, 30).until(
+        lambda driver: driver.execute_script("""
+            return Boolean(
+                window.___grecaptcha_cfg &&
+                ___grecaptcha_cfg.clients &&
+                Object.keys(___grecaptcha_cfg.clients).length
+            );
+        """)
+    )
+
     retries = 0
-    while retries < 2:
+    while retries < 3:
         try:
             result = browser.execute_script(script)
-            if not result or not result[0]:
-                raise IndexError("Callback name is empty or null")
-            callback_function_name = result[0]['function']
-            sitekey = result[0]['sitekey']
+            if not result:
+                raise IndexError("reCAPTCHA clients list is empty")
+
+            captcha_data = next(
+                (
+                    item for item in result
+                    if item and item.get("sitekey") and item.get("function")
+                ),
+                None,
+            )
+            if not captcha_data:
+                raise IndexError("Callback function or sitekey is not ready yet")
+
+            callback_function_name = captcha_data['function']
+            sitekey = captcha_data['sitekey']
             print("Got the callback function name and site key")
             return callback_function_name, sitekey
-        except (IndexError, KeyError, TypeError):
+        except (IndexError, KeyError, TypeError, JavascriptException):
             retries += 1
             time.sleep(1)  # Wait a bit before retrying
+
+    raise TimeoutException("Timed out waiting for reCAPTCHA callback and sitekey")
 
 def solver_captcha(apikey, sitekey, url):
     """
@@ -152,11 +176,10 @@ def main():
     Helper functions (`get_captcha_params`, `solver_captcha`, `send_token_callback`, etc.)
     are designed so they can be copied and reused independently.
     """
-    apikey = os.getenv("APIKEY_2CAPTCHA")
     if not apikey:
         raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-    with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
+    with Driver(browser="chrome", headless=False) as browser:
         browser.get(url)
         print("Started")
 

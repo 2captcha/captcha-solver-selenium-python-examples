@@ -1,8 +1,8 @@
-# Code examples of solving captchas in Python using Selenium
+# Code examples of solving captchas in Python using SeleniumBase
 
-Examples of solving captchas using the Python programming language, and the [2captcha-python] and [Selenium] libraries.
+Examples of solving captchas using the Python programming language, and the [2captcha-python], [Selenium], and `seleniumbase` libraries.
 
-This repository contains examples of automation of solving the most popular types of captcha, such as [reCAPTCHA][recaptcha-v2-demo], [Cloudflare Turnstile][cloudflare-turnstile], [Cloudflare Challenge page][cloudflare-challenge], [normal captcha][normal-captcha-demo] and others. Selenium library is used for browser automation in the examples. The [2Captcha] service is used for solving captchas, therefore, for the correct work of the examples it is necessary to have an account in the [captcha solving service][2Captcha] service with a positive balance, or you can try to test it using [sandbox] mode to solve captchas manually.
+This repository contains examples of automation of solving the most popular types of captcha, such as [reCAPTCHA][recaptcha-v2-demo], [Cloudflare Turnstile][cloudflare-turnstile], [Cloudflare Challenge page][cloudflare-challenge], [normal captcha][normal-captcha-demo] and others. Browser automation in the examples is implemented with `seleniumbase`, which uses Selenium under the hood. The [2Captcha] service is used for solving captchas, therefore, for the correct work of the examples it is necessary to have an account in the [captcha solving service][2Captcha] service with a positive balance, or you can try to test it using [sandbox] mode to solve captchas manually.
  Also, for `proxy` examples to work correctly, you need to have your own `proxy` and set it in the example code. The examples of captcha automation solving use captchas located on the [captchas demo pages](https://2captcha.com/demo).
 
 Each example is built as a “constructor”: the code is split into small, focused functions that you can copy and reuse independently in your own projects.
@@ -52,6 +52,8 @@ cd captcha-solver-selenium-python-examples
 ### Install dependencies:
 
 `pip install -r requirements.txt`
+
+The examples in this repository use `seleniumbase` as the browser driver layer, while continuing to use Selenium APIs such as locators, waits, and action chains where needed.
 
 ### Configure:
 
@@ -115,7 +117,7 @@ There are several fundamentally different ways to bypass reCAPTCHA V2:
 
 Token based reCAPTCHA V2 solution.
 
-This example implements bypassing reCAPTCHA V2 captcha located on the page https://2captcha.com/demo/recaptcha-v2. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
+This example implements bypassing reCAPTCHA V2 captcha located on the page https://2captcha.com/demo/recaptcha-v2. `seleniumbase` is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
 
 **Source code:** [`./examples/reCAPTCAHA/recaptcha_v2.py`](./examples/reCAPTCHA/recaptcha_v2.py)
 
@@ -123,7 +125,7 @@ This example implements bypassing reCAPTCHA V2 captcha located on the page https
 
 Token based reCAPTCHA V2 solution.
 
-This example implements bypassing reCAPTCHA V2 captcha located on the page https://2captcha.com/demo/recaptcha-v2 using `proxy`. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
+This example implements bypassing reCAPTCHA V2 captcha located on the page https://2captcha.com/demo/recaptcha-v2 using `proxy`. `seleniumbase` is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
 
 From time to time when bypassing captchas there is a need to use proxies, in such cases it is important to use the same proxies both when loading the page and when solving the captcha itself. To do this, you need to pass the parameters of the `proxy` used with the parameters of the captcha, so that the captcha would be loaded and solved from the same ip address.
 
@@ -135,7 +137,7 @@ For the example to work correctly, you need to set the value of the `proxy` used
 
 Token based reCAPTCHA V2 with callback solutions.
 
-In these examples implements bypassing reCAPTCHA V2 with callback located on the page https://2captcha.com/demo/recaptcha-v2-callback using different realizations. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
+In these examples implements bypassing reCAPTCHA V2 with callback located on the page https://2captcha.com/demo/recaptcha-v2-callback using different realizations. `seleniumbase` is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
 
 Sometimes there's no submit button and a callback function is used isntead. The function is executed when reCAPTCHA is solved.
 
@@ -157,7 +159,7 @@ In this repository you can find three example implementations of the reCAPTCHA V
 
 Token based reCAPTCHA V2 with callback solutions using proxy.
 
-In these example implements bypassing reCAPTCHA V2 with callback located on the page https://2captcha.com/demo/recaptcha-v2-callback using proxy. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
+In these example implements bypassing reCAPTCHA V2 with callback located on the page https://2captcha.com/demo/recaptcha-v2-callback using proxy. `seleniumbase` is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
 
 For the example to work correctly, you need to set the value of the `proxy` used in the example code.
 
@@ -167,7 +169,7 @@ For the example to work correctly, you need to set the value of the `proxy` used
 
 Token based reCAPTCHA V3 solution.
 
-This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https://2captcha.com/demo/recaptcha-v3. The Selenium library automates browser interactions. Captcha parameters are determined automatically with the help of JavaScript script executed on the page. Upon obtaining the solution (token), the script programmatically applies the response to the captcha page.
+This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https://2captcha.com/demo/recaptcha-v3. `seleniumbase` automates browser interactions. Captcha parameters are determined automatically with the help of JavaScript script executed on the page. Upon obtaining the solution (token), the script programmatically applies the response to the captcha page.
 
 **Source code:** [`./examples/reCAPTCAHA/recaptcha_v3.py`](./examples/reCAPTCHA/recaptcha_v3.py)
 
@@ -175,7 +177,7 @@ This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https
 
 Token based reCAPTCHA V3 solution.
 
-This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https://2captcha.com/demo/recaptcha-v3. The Selenium library automates browser interactions. Captcha parameters are determined automatically with the help of JavaScript extended script executed on the page. Upon obtaining the solution (token), the script programmatically applies the response to the captcha page.
+This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https://2captcha.com/demo/recaptcha-v3. `seleniumbase` automates browser interactions. Captcha parameters are determined automatically with the help of JavaScript extended script executed on the page. Upon obtaining the solution (token), the script programmatically applies the response to the captcha page.
 
 **Source code:** [`./examples/reCAPTCAHA/recaptcha_v3_extended_js_script.py`](./examples/reCAPTCHA/recaptcha_v3_extended_js_script.py)
 
@@ -183,7 +185,7 @@ This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https
 
 Token based reCAPTCHA V3 solution using proxy.
 
-This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https://2captcha.com/demo/recaptcha-v3. The Selenium library automates browser interactions. Captcha parameters are determined automatically with the help of JavaScript script on the page. Upon obtaining the solution (token), the script programmatically applies the response to the captcha page. A proxy is use during the captcha-solving process.
+This example demonstrates bypassing the reCAPTCHA V3 challenge on the page https://2captcha.com/demo/recaptcha-v3. `seleniumbase` automates browser interactions. Captcha parameters are determined automatically with the help of JavaScript script on the page. Upon obtaining the solution (token), the script programmatically applies the response to the captcha page. A proxy is use during the captcha-solving process.
 
 For the example to work correctly, you need to set the value of the `proxy` used in the example code.
 
@@ -204,7 +206,7 @@ The approach to bypassing these two types is different, so you need to determine
 
 Token-based Cloudflare Turnstile solution.
 
-This example demonstrates how to bypass the Cloudflare Turnstile CAPTCHA located on the page https://2captcha.com/demo/cloudflare-turnstile. The Selenium library is used to automate browser actions and retrieve CAPTCHA parameters. To solve this type of Cloudflare CAPTCHA, it is necessary to send parameters such as `pageurl` and `sitekey` to the [2Captcha API](https://2captcha.com/2captcha-api#turnstile). After receiving the solution result (token), the script automatically uses the received answer on the page.
+This example demonstrates how to bypass the Cloudflare Turnstile CAPTCHA located on the page https://2captcha.com/demo/cloudflare-turnstile. `seleniumbase` is used to automate browser actions and retrieve CAPTCHA parameters. To solve this type of Cloudflare CAPTCHA, it is necessary to send parameters such as `pageurl` and `sitekey` to the [2Captcha API](https://2captcha.com/2captcha-api#turnstile). After receiving the solution result (token), the script automatically uses the received answer on the page.
 
 **Source code:** [`./examples/cloudflare/cloudflare_turnstile.py`](./examples/cloudflare/cloudflare_turnstile.py)
 
@@ -213,7 +215,7 @@ This example demonstrates how to bypass the Cloudflare Turnstile CAPTCHA located
 
 Token-based Cloudflare Challenge page solution.
 
-This example demonstrates how to bypass the Cloudflare Challenge located on the page https://2captcha.com/demo/cloudflare-turnstile-challenge. The Selenium library is used to automate browser actions and retrieve CAPTCHA parameters. To solve this type of Cloudflare CAPTCHA, it is necessary to send parameters such as `pageurl`,`sitekey`, `action`, `data`, `pagedata`, `useragent` to the [2Captcha API](https://2captcha.com/2captcha-api#turnstile). After receiving the solution result (token), the script automatically uses the received answer on the page.
+This example demonstrates how to bypass the Cloudflare Challenge located on the page https://2captcha.com/demo/cloudflare-turnstile-challenge. `seleniumbase` is used to automate browser actions and retrieve CAPTCHA parameters. To solve this type of Cloudflare CAPTCHA, it is necessary to send parameters such as `pageurl`,`sitekey`, `action`, `data`, `pagedata`, `useragent` to the [2Captcha API](https://2captcha.com/2captcha-api#turnstile). After receiving the solution result (token), the script automatically uses the received answer on the page.
 
 > [!NOTE]
 > When a web page first loads, some JavaScript functions and objects (such as `window.turnstile`) may already be initialized and executed. If the interception script is launched too late, this may lead to the fact that the necessary parameters will already be lost, or the script simply will not have time to intercept the right moment. Refreshing the page ensures that everything starts from scratch and you trigger the interception at the right time.
@@ -224,7 +226,7 @@ This example demonstrates how to bypass the Cloudflare Challenge located on the 
 
 Text captcha solutions.
 
-In these example implements bypassing Text captcha located on the page https://2captcha.com/demo/text. Selenium library is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
+In these example implements bypassing Text captcha located on the page https://2captcha.com/demo/text. `seleniumbase` is used to automate browser actions. After receiving the solution result (token), the script automatically uses the received answer on the page with the captcha.
 
 **Source code:** [`./examples/text_captcha/text_captcha.py`](./examples/text_captcha/text_captcha.py)
 
@@ -236,7 +238,7 @@ Normal captcha is also one of the most popular types of captcha. Below are two e
 
 Normal captcha solutions.
 
-In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is retrieved by creating a screenshot of the captcha image.
+In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. `seleniumbase` is used to automate browser actions. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is retrieved by creating a screenshot of the captcha image.
 
 **Source code:** [`./examples/normal_captcha/normal_captcha_screenshot.py`](./examples/normal_captcha/normal_captcha_screenshot.py)
 
@@ -244,7 +246,7 @@ In these example implements bypassing Normal captcha located on the page https:/
 
 Normal captcha solutions.
 
-In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is extracted using `canvas`.
+In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. `seleniumbase` is used to automate browser actions. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is extracted using `canvas`.
 
 **Source code:** [`./examples/normal_captcha/normal_captcha_canvas.py`](./examples/normal_captcha/normal_captcha_canvas.py)
 
@@ -252,13 +254,13 @@ In these example implements bypassing Normal captcha located on the page https:/
 
 Normal captcha solutions using additional parameters.
 
-In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. Selenium library is used to automate browser actions. The captcha is sent using additional parameters such as `numeric`, `minLen`, `maxLen`, `lang`. Sending additional parameters allows you to increase the accuracy of the captcha solution. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is retrieved by creating a screenshot of the captcha image.
+In these example implements bypassing Normal captcha located on the page https://2captcha.com/demo/normal. `seleniumbase` is used to automate browser actions. The captcha is sent using additional parameters such as `numeric`, `minLen`, `maxLen`, `lang`. Sending additional parameters allows you to increase the accuracy of the captcha solution. After receiving the solution result, the script automatically uses the received answer on the page with the captcha. In this example, the captcha image is retrieved by creating a screenshot of the captcha image.
 
 **Source code:** [`./examples/normal_captcha/normal_captcha_screenshot_params.py`](./examples/normal_captcha/normal_captcha_screenshot_params.py)
 
 ### Coordinates example
 
-A coordinate captcha is a captcha in which you need to click on the image  in corresponding to the instructions for the image.This example implements a bypass of the coordinate captcha located on the page https://2captcha.com/demo/clickcaptcha.  The Selenium library is used to automate browser actions. After receiving the result of the solution, the script automatically clicks on the received coordinates on the captcha image.
+A coordinate captcha is a captcha in which you need to click on the image  in corresponding to the instructions for the image.This example implements a bypass of the coordinate captcha located on the page https://2captcha.com/demo/clickcaptcha.  `seleniumbase` is used to automate browser actions. After receiving the result of the solution, the script automatically clicks on the received coordinates on the captcha image.
 
 **Source code:** [`./examples/coordinates/coordinates.py`](./examples/coordinates/coordinates.py)
 
@@ -266,7 +268,7 @@ A coordinate captcha is a captcha in which you need to click on the image  in co
 
 Token based MTCaptcha solutions.
 
-In these example, we demonstrate bypassing MTCaptcha located on the page https://2captcha.com/demo/mtcaptcha. The Selenium library is utilized to automate browser actions. Upon receiving the solution result (token), the script automatically applies the obtained answer on the page containing the captcha.
+In these example, we demonstrate bypassing MTCaptcha located on the page https://2captcha.com/demo/mtcaptcha. `seleniumbase` is utilized to automate browser actions. Upon receiving the solution result (token), the script automatically applies the obtained answer on the page containing the captcha.
 
 **Source code:** [`./examples/mtcaptcha/mtcaptcha.py`](./examples/mtcaptcha/mtcaptcha.py)
 

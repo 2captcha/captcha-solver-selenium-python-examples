@@ -1,18 +1,16 @@
 import os
 import time
-from selenium import webdriver
+from seleniumbase import Driver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
 from twocaptcha import TwoCaptcha
 from utilities.proxy_extension import proxies
 
 # CONFIGURATION
 
 url = "https://2captcha.com/demo/recaptcha-v2"
+apikey = os.getenv("APIKEY_2CAPTCHA")
 proxy = {
     'type': 'HTTPS',
     'uri': 'username:password@ip:port',
@@ -32,7 +30,7 @@ def get_element(browser, locator):
     """
     Waits for an element to be clickable and returns it.
 
-    This helper can be copied and reused in other projects that use Selenium.
+    This helper can be copied and reused in other projects that use SeleniumBase.
     """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
@@ -56,26 +54,24 @@ def parse_proxy_uri(proxy):
 
 def setup_proxy(proxy):
     """
-    Sets up the proxy configuration for Chrome browser.
+    Builds a Chrome extension zip for authenticated proxy usage.
 
     Args:
         proxy (dict): Dictionary containing the proxy type and URI.
 
     Returns:
-        Options: Configured Chrome options with proxy settings.
+        str: Path to the generated proxy extension zip.
     """
-    chrome_options = webdriver.ChromeOptions()
     scheme, username, password, ip, port = parse_proxy_uri(proxy)
     proxies_extension = proxies(scheme, username, password, ip, port)
-    chrome_options.add_extension(proxies_extension)
-    return chrome_options
+    return proxies_extension
 
 def get_sitekey(browser, locator):
     """
     Extracts the sitekey from the specified element.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): The XPath locator of the element.
     Returns:
         str: The sitekey value.
@@ -111,7 +107,7 @@ def send_token(browser, captcha_token):
     Sends the captcha token to the reCaptcha response field.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         captcha_token (str): The solved captcha token.
         """
     script = f"""
@@ -125,7 +121,7 @@ def click_check_button(browser, locator):
     Clicks the captcha check button.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): The XPath locator of the check button.
     """
     get_element(browser, locator).click()
@@ -136,7 +132,7 @@ def final_message(browser, locator):
     Retrieves and prints the final success message.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): The XPath locator of the success message.
     """
     message = get_element(browser, locator).text
@@ -150,14 +146,17 @@ def main():
     Helper functions (`parse_proxy_uri`, `setup_proxy`, `get_sitekey`, `solver_captcha`,
     `send_token`, etc.) are designed so they can be copied and reused independently.
     """
-    apikey = os.getenv("APIKEY_2CAPTCHA")
     if not apikey:
         raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-    # Configure Chrome options with proxy settings
-    chrome_options = setup_proxy(proxy)
+    # Generate a Chrome extension that applies authenticated proxy settings
+    proxy_extension_zip = setup_proxy(proxy)
 
-    with webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options) as browser:
+    with Driver(
+        browser="chrome",
+        headless=False,
+        extension_zip=proxy_extension_zip,
+    ) as browser:
         # Go to the specified URL
         browser.get(url)
         print('Started')
