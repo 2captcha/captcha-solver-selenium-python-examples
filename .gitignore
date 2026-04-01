@@ -129,4 +129,7 @@ dmypy.json
 .pyre/
 
 .idea
+.DS_Store
 proxies_extension.zip
+examples/reCAPTCHA/downloaded_files/
+examples/reCAPTCHA/proxies_extension/

@@ -1,11 +1,9 @@
 import os
 import time
-from selenium import webdriver
+from seleniumbase import Driver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
 
 
@@ -28,7 +26,7 @@ def get_element(browser, locator):
     """
     Waits for an element to be clickable and returns it.
 
-    This helper can be copied and reused in other projects that use Selenium.
+    This helper can be copied and reused in other projects that use SeleniumBase.
     """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
@@ -115,11 +113,10 @@ def main():
     Helper functions (`get_sitekey`, `solver_captcha`, `send_token`, etc.)
     are designed so they can be copied and reused independently.
     """
-    apikey = os.getenv("APIKEY_2CAPTCHA")
     if not apikey:
         raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-    with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
+    with Driver(browser="chrome", headless=False) as browser:
         browser.get(url)
         print("Started")
 
@@ -139,4 +136,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

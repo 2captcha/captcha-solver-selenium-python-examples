@@ -1,17 +1,16 @@
 import os
 import time
-from selenium import webdriver
+from seleniumbase import Driver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
 
 
 # CONFIGURATION
 
 url = "https://2captcha.com/demo/normal"
+apikey = os.getenv("APIKEY_2CAPTCHA")
 
 
 # LOCATORS
@@ -29,7 +28,7 @@ def get_element(browser, locator):
     Waits for the element specified by the locator to become clickable and returns its web element
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): XPATH locator to find an element on the page
     Returns:
         WebElement: A web element that has become clickable
@@ -63,7 +62,7 @@ def get_image_canvas(browser, locator):
     Gets the Base64 representation of an image displayed on a web page using canvas
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): CSS selector for locating an image on a page.
     Returns:
         str: Base64 image string
@@ -95,7 +94,7 @@ def input_captcha_code(browser, locator, code):
     Enters the captcha solution code into the input field on the web page
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): XPATH locator of the captcha input field
         code (str): Captcha solution code
     """
@@ -108,7 +107,7 @@ def click_check_button(browser, locator):
     Clicks the check button on a web page
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): XPATH locator of the captcha verification button
     """
     button = get_element(browser, locator)
@@ -120,7 +119,7 @@ def final_message(browser, locator):
     Retrieves and prints the final success message.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): The XPath locator of the success message.
     """
     message = get_element(browser, locator).text
@@ -134,12 +133,11 @@ def main():
     Helper functions (`get_image_canvas`, `solver_captcha`, `input_captcha_code`, etc.)
     are designed so they can be copied and reused independently.
     """
-    apikey = os.getenv("APIKEY_2CAPTCHA")
     if not apikey:
         raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
     # Automatically closes the browser after block execution completes
-    with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
+    with Driver(browser="chrome", headless=False) as browser:
         # Go to page with captcha
         browser.get(url)
         print("Started")
@@ -166,4 +164,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

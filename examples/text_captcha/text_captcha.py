@@ -1,17 +1,16 @@
 import os
 import time
-from selenium import webdriver
+from seleniumbase import Driver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
 
 
 # CONFIGURATION
 
 url = "https://2captcha.com/demo/text"
+apikey = os.getenv("APIKEY_2CAPTCHA")
 
 
 # LOCATORS
@@ -27,7 +26,7 @@ def get_element(browser, locator):
     """
     Waits for an element to be clickable and returns it.
 
-    This helper can be copied and reused in other projects that use Selenium.
+    This helper can be copied and reused in other projects that use SeleniumBase.
     """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
@@ -39,7 +38,7 @@ def get_captcha_question(browser, locator):
     Extracts the captcha question text from the specified element.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): XPath locator of the captcha question element
     Returns:
         str: Text of the captcha question
@@ -72,7 +71,7 @@ def send_answer(browser, locator, answer):
     Inputs the captcha answer into the specified input field.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): XPath locator of the input field
         answer (str): Captcha answer
     """
@@ -85,7 +84,7 @@ def click_check_button(browser, locator):
     Clicks the check button on a web page
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): XPATH locator of the captcha verification button
     """
     button = get_element(browser, locator)
@@ -110,12 +109,11 @@ def main():
     Helper functions (`get_captcha_question`, `solver_captcha`, `send_answer`, etc.)
     are designed so they can be copied and reused independently.
     """
-    apikey = os.getenv("APIKEY_2CAPTCHA")
     if not apikey:
         raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
     # Automatically closes the browser after block execution completes
-    with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
+    with Driver(browser="chrome", headless=False) as browser:
         # Go to page with captcha
         browser.get(url)
         print("Started")

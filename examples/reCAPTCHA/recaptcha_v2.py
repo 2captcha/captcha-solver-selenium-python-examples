@@ -1,17 +1,16 @@
 import os
 import time
-from selenium import webdriver
+from seleniumbase import Driver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from twocaptcha import TwoCaptcha
 
 
 # CONFIGURATION
 
 url = "https://2captcha.com/demo/recaptcha-v2"
+apikey = os.getenv("APIKEY_2CAPTCHA")
 
 
 # LOCATORS
@@ -27,7 +26,7 @@ def get_element(browser, locator):
     """
     Waits for an element to be clickable and returns it.
 
-    This helper can be copied and reused in other projects that use Selenium.
+    This helper can be copied and reused in other projects that use SeleniumBase.
     """
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
@@ -39,7 +38,7 @@ def get_sitekey(browser, locator):
     Extracts the sitekey from the specified element.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): The XPath locator of the element.
     Returns:
         str: The sitekey value.
@@ -74,7 +73,7 @@ def send_token(browser, captcha_token):
     Sends the captcha token to the reCaptcha response field.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         captcha_token (str): The solved captcha token.
         """
     script = f"""
@@ -88,7 +87,7 @@ def click_check_button(browser, locator):
     Clicks the captcha check button.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): The XPath locator of the check button.
     """
     get_element(browser, locator).click()
@@ -99,7 +98,7 @@ def final_message(browser, locator):
     Retrieves and prints the final success message.
 
     Args:
-        browser (webdriver): The Selenium WebDriver instance.
+        browser: The SeleniumBase driver instance.
         locator (str): The XPath locator of the success message.
     """
     message = get_element(browser, locator).text
@@ -112,11 +111,10 @@ def main():
     The helper functions above (`get_sitekey`, `solver_captcha`, `send_token`, etc.)
     are designed so they can be copied and reused independently in other projects.
     """
-    apikey = os.getenv("APIKEY_2CAPTCHA")
     if not apikey:
         raise RuntimeError("Set APIKEY_2CAPTCHA environment variable")
 
-    with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
+    with Driver(browser="chrome", headless=False) as browser:
         # Go to the specified URL
         browser.get(url)
         print('Started')
